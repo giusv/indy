@@ -4,12 +4,14 @@ import java.util.*;
 
 import it.bancaditalia.indy.symbols.*;
 public class Lexer {
+	private ByteArrayInputStream input;
    public static int line = 1;
    char peek = ' ';
    Hashtable<String, Word> words = new Hashtable<String, Word>();
    void reserve(Word w) { words.put(w.lexeme, w); }
 
-   public Lexer() {
+   public Lexer(ByteArrayInputStream input) {
+	  this.input = input;
 
       reserve( new Word("if",    Tag.IF)    );
       reserve( new Word("else",  Tag.ELSE)  );
@@ -19,7 +21,10 @@ public class Lexer {
 
 
       reserve( new Word("indicator", Tag.INDICATOR) );
-
+      reserve(Word.open);
+      reserve(Word.close);
+      reserve(Word.and);
+      reserve(Word.eq);
       
       reserve( Word.True );  reserve( Word.False );
 
@@ -27,7 +32,10 @@ public class Lexer {
       reserve( Type.Bool );  reserve( Type.Float );
    }
 
-   void readch() throws IOException { peek = (char)System.in.read(); }
+   void readch() throws IOException { 
+//	   peek = (char)System.in.read();
+	   peek = (char)input.read();
+   }
    boolean readch(char c) throws IOException {
       readch();
       if( peek != c ) return false;
@@ -40,20 +48,30 @@ public class Lexer {
          else if( peek == '\n' ) line = line + 1;
          else break;
       }
-      switch( peek ) {
-      case '&':
-         if( readch('&') ) return Word.and;  else return new Token('&');
-      case '|':
-         if( readch('|') ) return Word.or;   else return new Token('|');
-      case '=':
-         if( readch('=') ) return Word.eq;   else return new Token('=');
-      case '!':
-         if( readch('=') ) return Word.ne;   else return new Token('!');
-      case '<':
-         if( readch('=') ) return Word.le;   else return new Token('<');
-      case '>':
-         if( readch('=') ) return Word.ge;   else return new Token('>');
+//      switch( peek ) {
+//      case '&':
+//         if( readch('&') ) return Word.and;  else return new Token('&');
+//      case '|':
+//         if( readch('|') ) return Word.or;   else return new Token('|');
+//      case '=':
+//         if( readch('=') ) return Word.eq;   else return new Token('=');
+//      case '!':
+//         if( readch('=') ) return Word.ne;   else return new Token('!');
+//      case '<':
+//         if( readch('=') ) return Word.le;   else return new Token('<');
+//      case '>':
+//         if( readch('=') ) return Word.ge;   else return new Token('>');
+//      }
+      
+      if(peek == '(') {
+    	  readch();
+    	  return Word.open;
       }
+      if(peek == ')') {
+    	  readch();
+    	  return Word.close;
+      }
+      
       if( Character.isDigit(peek) ) {
          int v = 0;
          do {

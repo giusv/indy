@@ -1,7 +1,7 @@
 package it.bancaditalia.indy.inter;
 import it.bancaditalia.indy.lexer.*; import it.bancaditalia.indy.symbols.*;
 
-public class Constant extends Expr {
+public class Constant extends ExprOld {
 
    public Constant(Token tok, Type p) { super(tok, p); }
    public Constant(int i) { super(new Num(i), Type.Int); }

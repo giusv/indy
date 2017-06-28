@@ -1,7 +1,7 @@
 package it.bancaditalia.indy.inter;
 import it.bancaditalia.indy.lexer.*; import it.bancaditalia.indy.symbols.*;
 
-public class Id extends Expr {
+public class Id extends ExprOld {
 
 	public int offset;     // relative address
 

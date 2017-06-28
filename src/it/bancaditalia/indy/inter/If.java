@@ -3,9 +3,9 @@ import it.bancaditalia.indy.symbols.*;
 
 public class If extends Stmt {
 
-   Expr expr; Stmt stmt;
+   ExprOld expr; Stmt stmt;
 
-   public If(Expr x, Stmt s) {
+   public If(ExprOld x, Stmt s) {
       expr = x;  stmt = s;
       if( expr.type != Type.Bool ) expr.error("boolean required in if");
    }

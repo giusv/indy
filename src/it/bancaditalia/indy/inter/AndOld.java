@@ -1,9 +1,9 @@
 package it.bancaditalia.indy.inter;
 import it.bancaditalia.indy.lexer.*;
 
-public class And extends Logical {
+public class AndOld extends Logical {
 
-   public And(Token tok, ExprOld x1, ExprOld x2) { super(tok, x1, x2); }
+   public AndOld(Token tok, ExprOld x1, ExprOld x2) { super(tok, x1, x2); }
 
    public void jumping(int t, int f) {
       int label = f != 0 ? f : newlabel();

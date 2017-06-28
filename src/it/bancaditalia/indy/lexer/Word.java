@@ -7,10 +7,12 @@ public class Word extends Token {
 
    public static final Word
 
-      and = new Word( "&&", Tag.AND ),  or = new Word( "||", Tag.OR ),
-      eq  = new Word( "==", Tag.EQ  ),  ne = new Word( "!=", Tag.NE ),
+      and = new Word( "and", Tag.AND ),  or = new Word( "or", Tag.OR ),
+      eq  = new Word( "eq", Tag.EQ  ),  ne = new Word( "!=", Tag.NE ),
       le  = new Word( "<=", Tag.LE  ),  ge = new Word( ">=", Tag.GE ),
 
+	  open = new Word("(", Tag.OPEN),
+   	  close = new Word(")", Tag.CLOSE),
       minus  = new Word( "minus", Tag.MINUS ),
       True   = new Word( "true",  Tag.TRUE  ),
       False  = new Word( "false", Tag.FALSE ),

@@ -1,7 +1,7 @@
 package it.bancaditalia.indy.inter;
 import it.bancaditalia.indy.lexer.*; import it.bancaditalia.indy.symbols.*;
 
-public class Temp extends Expr {
+public class Temp extends ExprOld {
 
    static int count = 0;
    int number = 0;

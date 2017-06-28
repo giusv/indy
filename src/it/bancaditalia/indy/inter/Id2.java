@@ -1,9 +1,21 @@
 package it.bancaditalia.indy.inter;
-import it.bancaditalia.indy.lexer.*; import it.bancaditalia.indy.symbols.*;
 
-public class Id2 extends Expr {
+import it.bancaditalia.indy.lexer.*;
 
-	public Id2(Word id, Type p) { super(id, p); }
+public class Id2 implements Expr {
 
-	public String toString() {return super.toString();}
+	private Word id;
+
+	public Id2(Word id) {
+		this.id = id;
+	}
+
+	public String toString() {
+		return id.toString();
+	}
+
+	@Override
+	public Object eval() {
+		return null;
+	}
 }

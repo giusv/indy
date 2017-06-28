@@ -3,7 +3,7 @@ import it.bancaditalia.indy.lexer.*;
 
 public class Or extends Logical {
 
-   public Or(Token tok, Expr x1, Expr x2) { super(tok, x1, x2); }
+   public Or(Token tok, ExprOld x1, ExprOld x2) { super(tok, x1, x2); }
 
    public void jumping(int t, int f) {
       int label = t != 0 ? t : newlabel();

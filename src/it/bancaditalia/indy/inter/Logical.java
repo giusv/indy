@@ -1,11 +1,11 @@
 package it.bancaditalia.indy.inter;
 import it.bancaditalia.indy.lexer.*; import it.bancaditalia.indy.symbols.*;
 
-public class Logical extends Expr {
+public class Logical extends ExprOld {
 
-   public Expr expr1, expr2;
+   public ExprOld expr1, expr2;
 
-   Logical(Token tok, Expr x1, Expr x2) {
+   Logical(Token tok, ExprOld x1, ExprOld x2) {
       super(tok, null);                      // null type to start
       expr1 = x1; expr2 = x2;
       type = check(expr1.type, expr2.type);
@@ -17,7 +17,7 @@ public class Logical extends Expr {
       else return null;
    }
 
-   public Expr gen() {
+   public ExprOld gen() {
       int f = newlabel(); int a = newlabel();
       Temp temp = new Temp(type);
       this.jumping(0,f);
