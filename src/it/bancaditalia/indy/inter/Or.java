@@ -1,14 +1,26 @@
 package it.bancaditalia.indy.inter;
-import it.bancaditalia.indy.lexer.*;
 
-public class Or extends Logical {
+public class Or extends BooleanExpression {
 
-   public Or(Token tok, ExprOld x1, ExprOld x2) { super(tok, x1, x2); }
+	private Expression op1, op2;
 
-   public void jumping(int t, int f) {
-      int label = t != 0 ? t : newlabel();
-      expr1.jumping(label, 0);
-      expr2.jumping(t,f);
-      if( t == 0 ) emitlabel(label);
-   }
+	public Or(Expression op1, Expression op2) {
+		super();
+		this.op1 = op1;
+		this.op2 = op2;
+	}
+
+	public Expression getOp1() {
+		return op1;
+	}
+
+	public void setOp1(Expression op1) {
+		this.op1 = op1;
+	}
+
+	@Override
+	public String javascript() {
+		return "(" + op1.javascript() + " && " + op2.javascript() + ")";
+	}
+
 }

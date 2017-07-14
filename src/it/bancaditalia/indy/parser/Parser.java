@@ -7,9 +7,9 @@ import java.util.List;
 import it.bancaditalia.indy.lexer.*;
 import it.bancaditalia.indy.symbols.*;
 import it.bancaditalia.indy.inter.*;
+import it.bancaditalia.indy.utils.*;
 
 public class Parser {
-
 
 	private Lexer lex; // lexical analyzer for this parser
 	private Token look; // lookahead tag
@@ -29,284 +29,587 @@ public class Parser {
 		throw new Error("near line " + Lexer.line + ": " + s);
 	}
 
-	void match(int t) throws IOException {
+	public void match(int t) throws IOException {
 		if (look.tag == t) {
 			System.out.println(look);
 			move();
-		}
-		else
+		} else
 			error("syntax error: expecting " + t + ", found " + look.tag);
 	}
 
-	public Indicator indicator() throws IOException { // indicator -> (indicator
-														// ID2 EXPR2)
-		match(Tag.OPEN);
-		match(Tag.INDICATOR);
-		Token tok = look;
-		match(Tag.ID);
-		match(Tag.CLOSE);
-		BoolExpr bexpr = bexpr();
-		Id2 name = new Id2((Word) tok);
-		return new Indicator(name, bexpr);
+	public Expression espressione() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.LEFT:
+	        {
+	            Expression node = termine();
+	            Expression syn = restoEspressione(node);
+	            return syn;
+	        }
+	        case Tag.ID:
+	        {
+	            Expression node = termine();
+	            Expression syn = restoEspressione(node);
+	            return syn;
+	        }
+	        case Tag.NUM:
+	        {
+	            Expression node = termine();
+	            Expression syn = restoEspressione(node);
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for ESPRESSIONE: expecting LEFT, ID, NUM, " + "found " + look);
+	        }
+	    }
 	}
-
-	public Expr expr() throws IOException {
-		Token tok = look;
-		Expr ret = null;
-		switch (tok.tag) {
-		case Tag.ID:
-			match(Tag.ID);
-			ret = new Id2((Word) tok);
-		}
-		return ret;
+	public Expression restoEspressione(Expression expr) throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.OR:
+	        {
+	            return expr;
+	        }
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.AND:
+	        {
+	            return expr;
+	        }
+	        case Tag.EQUAL:
+	        {
+	            return expr;
+	        }
+	        case Tag.COMMA:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
+	        case Tag.PLUS:
+	        {
+	            match(Tag.PLUS);
+	            Expression node = termine();
+	            Expression syn = restoEspressione(new Plus(expr,node));
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-ESPRESSIONE: expecting OR, EOF, AND, EQUAL, COMMA, RIGHT, IN, PLUS, " + "found " + look);
+	        }
+	    }
 	}
-
-	public BoolExpr bexpr() throws IOException {
-		System.out.println("entering bexpr()");
-		match(Tag.OPEN);
-		Token tok = look;
-		BoolExpr ret = null;
-		switch (tok.tag) {
-		case Tag.AND:
-			match(Tag.AND);
-			List<BoolExpr> expressions = bexprs();
-			ret = new And2(expressions);
-		case Tag.EQ:
-			match(Tag.EQ);
-			Expr lhs = expr();
-			Expr rhs = expr();
-			ret = new Eq(lhs, rhs);
-		}
-
-		match(Tag.CLOSE);
-		System.out.println("exiting bexpr() look " + look);
-		return ret;
+	public Expression termine() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.NUM:
+	        {
+	            Expression node = ff();
+	            Expression syn = tp(node);
+	            return syn;
+	        }
+	        case Tag.ID:
+	        {
+	            Expression node = ff();
+	            Expression syn = tp(node);
+	            return syn;
+	        }
+	        case Tag.LEFT:
+	        {
+	            Expression node = ff();
+	            Expression syn = tp(node);
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for TERMINE: expecting NUM, ID, LEFT, " + "found " + look);
+	        }
+	    }
 	}
-
-	private List<BoolExpr> bexprs() throws IOException {
-		List<BoolExpr> list = new ArrayList<BoolExpr>();
-		while (look.tag != Tag.CLOSE) {
-			list.add(bexpr());
-		}
-		return list;
+	public Expression tp(Expression expr) throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
+	        case Tag.COMMA:
+	        {
+	            return expr;
+	        }
+	        case Tag.EQUAL:
+	        {
+	            return expr;
+	        }
+	        case Tag.AND:
+	        {
+	            return expr;
+	        }
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.OR:
+	        {
+	            return expr;
+	        }
+	        case Tag.PLUS:
+	        {
+	            return expr;
+	        }
+	        case Tag.TIMES:
+	        {
+	            match(Tag.TIMES);
+	            Expression node = ff();
+	            Expression syn = tp(new Times(expr,node));
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for TP: expecting IN, RIGHT, COMMA, EQUAL, AND, EOF, OR, PLUS, TIMES, " + "found " + look);
+	        }
+	    }
 	}
-
-	// public void program() throws IOException { // program -> block
-	// Stmt s = block();
-	// int begin = s.newlabel(); int after = s.newlabel();
-	// s.emitlabel(begin); s.gen(begin, after); s.emitlabel(after);
-	// }
-	//
-	// Stmt block() throws IOException { // block -> { decls stmts }
-	// match('{'); Env savedEnv = top; top = new Env(top);
-	// decls(); Stmt s = stmts();
-	// match('}'); top = savedEnv;
-	// return s;
-	// }
-	//
-	// void decls() throws IOException {
-	//
-	// while( look.tag == Tag.BASIC ) { // D -> type ID ;
-	// Type p = type(); Token tok = look; match(Tag.ID); match(';');
-	// Id id = new Id((Word)tok, p, used);
-	// top.put( tok, id );
-	// used = used + p.width;
-	// }
-	// }
-
-	// Type type() throws IOException {
-	//
-	// Type p = (Type)look; // expect look.tag == Tag.BASIC
-	// match(Tag.BASIC);
-	// return p;
-	// // if( look.tag != '[' ) return p; // T -> basic
-	// // else return dims(p); // return array type
-	// }
-
-	// Type dims(Type p) throws IOException {
-	// match('['); Token tok = look; match(Tag.NUM); match(']');
-	// if( look.tag == '[' )
-	// p = dims(p);
-	// return new Array(((Num)tok).value, p);
-	// }
-	//
-	// Stmt stmts() throws IOException {
-	// if ( look.tag == '}' ) return Stmt.Null;
-	// else return new Seq(stmt(), stmts());
-	// }
-	//
-	// Stmt stmt() throws IOException {
-	// Expr x; Stmt s1, s2;
-	// Stmt savedStmt; // save enclosing loop for breaks
-	//
-	// switch( look.tag ) {
-	//
-	// case ';':
-	// move();
-	// return Stmt.Null;
-	//
-	// case Tag.IF:
-	// match(Tag.IF); match(Tag.OPEN); x = bool(); match(Tag.CLOSE);
-	// s1 = stmt();
-	// if( look.tag != Tag.ELSE ) return new If(x, s1);
-	// match(Tag.ELSE);
-	// s2 = stmt();
-	// return new Else(x, s1, s2);
-	//
-	// case Tag.WHILE:
-	// While whilenode = new While();
-	// savedStmt = Stmt.Enclosing; Stmt.Enclosing = whilenode;
-	// match(Tag.WHILE); match(Tag.OPEN); x = bool(); match(Tag.CLOSE);
-	// s1 = stmt();
-	// whilenode.init(x, s1);
-	// Stmt.Enclosing = savedStmt; // reset Stmt.Enclosing
-	// return whilenode;
-	//
-	// case Tag.DO:
-	// Do donode = new Do();
-	// savedStmt = Stmt.Enclosing; Stmt.Enclosing = donode;
-	// match(Tag.DO);
-	// s1 = stmt();
-	// match(Tag.WHILE); match(Tag.OPEN); x = bool(); match(Tag.CLOSE);
-	// match(';');
-	// donode.init(s1, x);
-	// Stmt.Enclosing = savedStmt; // reset Stmt.Enclosing
-	// return donode;
-	//
-	// case Tag.BREAK:
-	// match(Tag.BREAK); match(';');
-	// return new Break();
-	//
-	// case '{':
-	// return block();
-	//
-	// default:
-	// return assign();
-	// }
-	// }
-
-	// Stmt assign() throws IOException {
-	// Stmt stmt; Token t = look;
-	// match(Tag.ID);
-	// Id id = top.get(t);
-	// if( id == null ) error(t.toString() + " undeclared");
-	//
-	// if( look.tag == '=' ) { // S -> id = E ;
-	// move(); stmt = new Set(id, bool());
-	// }
-	// else { // S -> L = E ;
-	// Access x = offset(id);
-	// match('='); stmt = new SetElem(x, bool());
-	// }
-	// match(';');
-	// return stmt;
-	// }
-	//
-	// Expr bool() throws IOException {
-	// Expr x = join();
-	// while( look.tag == Tag.OR ) {
-	// Token tok = look; move(); x = new Or(tok, x, join());
-	// }
-	// return x;
-	// }
-	//
-	// Expr join() throws IOException {
-	// Expr x = equality();
-	// while( look.tag == Tag.AND ) {
-	// Token tok = look; move(); x = new And(tok, x, equality());
-	// }
-	// return x;
-	// }
-	//
-	// Expr equality() throws IOException {
-	// Expr x = rel();
-	// while( look.tag == Tag.EQ || look.tag == Tag.NE ) {
-	// Token tok = look; move(); x = new Rel(tok, x, rel());
-	// }
-	// return x;
-	// }
-	//
-	// Expr rel() throws IOException {
-	// Expr x = expr();
-	// switch( look.tag ) {
-	// case '<': case Tag.LE: case Tag.GE: case '>':
-	// Token tok = look; move(); return new Rel(tok, x, expr());
-	// default:
-	// return x;
-	// }
-	// }
-	//
-	// Expr expr() throws IOException {
-	// Expr x = term();
-	// while( look.tag == '+' || look.tag == '-' ) {
-	// Token tok = look; move(); x = new Arith(tok, x, term());
-	// }
-	// return x;
-	// }
-	//
-	// Expr term() throws IOException {
-	// Expr x = unary();
-	// while(look.tag == '*' || look.tag == '/' ) {
-	// Token tok = look; move(); x = new Arith(tok, x, unary());
-	// }
-	// return x;
-	// }
-	//
-	// Expr unary() throws IOException {
-	// if( look.tag == '-' ) {
-	// move(); return new Unary(Word.minus, unary());
-	// }
-	// else if( look.tag == '!' ) {
-	// Token tok = look; move(); return new Not(tok, unary());
-	// }
-	// else return factor();
-	// }
-	//
-	// Expr factor() throws IOException {
-	// Expr x = null;
-	// switch( look.tag ) {
-	// case Tag.OPEN:
-	// move(); x = bool(); match(Tag.CLOSE);
-	// return x;
-	// case Tag.NUM:
-	// x = new Constant(look, Type.Int); move(); return x;
-	// case Tag.REAL:
-	// x = new Constant(look, Type.Float); move(); return x;
-	// case Tag.TRUE:
-	// x = Constant.True; move(); return x;
-	// case Tag.FALSE:
-	// x = Constant.False; move(); return x;
-	// default:
-	// error("syntax error");
-	// return x;
-	// case Tag.ID:
-	// Id id = top.get(look);
-	// if( id == null ) error(look.toString() + " undeclared");
-	// move();
-	// return id;
-	// // if( look.tag != '[' ) return id;
-	// // else return offset(id);
-	// }
-	// }
-
-	// Access offset(Id a) throws IOException { // I -> [E] | [E] I
-	// Expr i; Expr w; Expr t1, t2; Expr loc; // inherit id
-	//
-	// Type type = a.type;
-	// match('['); i = bool(); match(']'); // first index, I -> [ E ]
-	// type = ((Array)type).of;
-	// w = new Constant(type.width);
-	// t1 = new Arith(new Token('*'), i, w);
-	// loc = t1;
-	// while( look.tag == '[' ) { // multi-dimensional I -> [ E ] I
-	// match('['); i = bool(); match(']');
-	// type = ((Array)type).of;
-	// w = new Constant(type.width);
-	// t1 = new Arith(new Token('*'), i, w);
-	// t2 = new Arith(new Token('+'), loc, t1);
-	// loc = t2;
-	// }
-	//
-	// return new Access(a, loc, type);
-	// }
+	public Expression ff() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.ID:
+	        {
+	            Expression node = ((Expression) top.get(((Word) look).lexeme));
+	            if(node == null)
+	            {
+	                error(look.toString() + " undeclared");
+	            }
+	            match(Tag.ID);
+	            return node;
+	        }
+	        case Tag.NUM:
+	        {
+	            NumericConstant node = new NumericConstant(((Num) look).value);
+	            match(Tag.NUM);
+	            return node;
+	        }
+	        case Tag.LEFT:
+	        {
+	            match(Tag.LEFT);
+	            Expression node = espressioneBooleana();
+	            match(Tag.RIGHT);
+	            return node;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for FF: expecting ID, NUM, LEFT, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression indyLet() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.LET:
+	        {
+	            match(Tag.LET);
+	            Env saved = top;
+	            top = new Env(top);
+	            ArrayList<Binding> binds = indyBinds();
+	            match(Tag.IN);
+	            Expression node = espressioneBooleana();
+	            top = saved;
+	            return new Let(binds,node);
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for INDY-LET: expecting LET, " + "found " + look);
+	        }
+	    }
+	}
+	public ArrayList<Binding> indyBinds() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.ID:
+	        {
+	            Binding bind = indyBind();
+	            ArrayList<Binding> binds = indyBindsRest();
+	            return ((ArrayList<Binding>) ListUtils.cons(bind,binds));
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for INDY-BINDS: expecting ID, " + "found " + look);
+	        }
+	    }
+	}
+	public ArrayList<Binding> indyBindsRest() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.COMMA:
+	        {
+	            match(Tag.COMMA);
+	            Binding bind = indyBind();
+	            ArrayList<Binding> binds = indyBindsRest();
+	            return ((ArrayList<Binding>) ListUtils.cons(bind,binds));
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return new ArrayList<Binding>();
+	        }
+	        case Tag.IN:
+	        {
+	            return new ArrayList<Binding>();
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for INDY-BINDS-REST: expecting COMMA, RIGHT, IN, " + "found " + look);
+	        }
+	    }
+	}
+	public Binding indyBind() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.ID:
+	        {
+	            Identifier id = new Identifier(((Word) look));
+	            match(Tag.ID);
+	            match(Tag.ASSIGN);
+	            Expression node = espressione();
+	            top.put(id.getId()
+	                      .lexeme,id);
+	            return new Binding(id,node);
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for INDY-BIND: expecting ID, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression espressioneBooleana() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.NOT:
+	        {
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(node);
+	            return syn;
+	        }
+	        case Tag.FALSE:
+	        {
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(node);
+	            return syn;
+	        }
+	        case Tag.NUM:
+	        {
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(node);
+	            return syn;
+	        }
+	        case Tag.ID:
+	        {
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(node);
+	            return syn;
+	        }
+	        case Tag.LEFT:
+	        {
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(node);
+	            return syn;
+	        }
+	        case Tag.SINISTRI:
+	        {
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(node);
+	            return syn;
+	        }
+	        case Tag.TRUE:
+	        {
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(node);
+	            return syn;
+	        }
+	        case Tag.LET:
+	        {
+	            Expression node = indyLet();
+	            return node;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for ESPRESSIONE-BOOLEANA: expecting NOT, FALSE, NUM, ID, LEFT, SINISTRI, TRUE, LET, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression restoEspressioneBooleana(Expression expr) throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
+	        case Tag.OR:
+	        {
+	            match(Tag.OR);
+	            Expression node = termineBooleano();
+	            Expression syn = restoEspressioneBooleana(new Or(expr,node));
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-ESPRESSIONE-BOOLEANA: expecting EOF, RIGHT, OR, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression termineBooleano() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.TRUE:
+	        {
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(node);
+	            return syn;
+	        }
+	        case Tag.SINISTRI:
+	        {
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(node);
+	            return syn;
+	        }
+	        case Tag.LEFT:
+	        {
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(node);
+	            return syn;
+	        }
+	        case Tag.ID:
+	        {
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(node);
+	            return syn;
+	        }
+	        case Tag.NUM:
+	        {
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(node);
+	            return syn;
+	        }
+	        case Tag.FALSE:
+	        {
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(node);
+	            return syn;
+	        }
+	        case Tag.NOT:
+	        {
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(node);
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for TERMINE-BOOLEANO: expecting TRUE, SINISTRI, LEFT, ID, NUM, FALSE, NOT, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression restoTermineBooleano(Expression expr) throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.OR:
+	        {
+	            return expr;
+	        }
+	        case Tag.AND:
+	        {
+	            match(Tag.AND);
+	            Expression node = fattoreBooleano();
+	            Expression syn = restoTermineBooleano(new And(expr,node));
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-TERMINE-BOOLEANO: expecting RIGHT, EOF, OR, AND, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression fattoreBooleano() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.SINISTRI:
+	        {
+	            Expression node = funzione();
+	            return node;
+	        }
+	        case Tag.LEFT:
+	        {
+	            Expression node = relazione();
+	            return node;
+	        }
+	        case Tag.ID:
+	        {
+	            Expression node = relazione();
+	            return node;
+	        }
+	        case Tag.NUM:
+	        {
+	            Expression node = relazione();
+	            return node;
+	        }
+	        case Tag.FALSE:
+	        {
+	            match(Tag.FALSE);
+	            return new BooleanConstant(false);
+	        }
+	        case Tag.TRUE:
+	        {
+	            match(Tag.TRUE);
+	            return new BooleanConstant(true);
+	        }
+	        case Tag.NOT:
+	        {
+	            match(Tag.NOT);
+	            Expression syn = fattoreBooleano();
+	            return new Not(syn);
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for FATTORE-BOOLEANO: expecting SINISTRI, LEFT, ID, NUM, FALSE, TRUE, NOT, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression relazione() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.NUM:
+	        {
+	            Expression node = espressione();
+	            Expression syn = restoRelazione(node);
+	            return syn;
+	        }
+	        case Tag.ID:
+	        {
+	            Expression node = espressione();
+	            Expression syn = restoRelazione(node);
+	            return syn;
+	        }
+	        case Tag.LEFT:
+	        {
+	            Expression node = espressione();
+	            Expression syn = restoRelazione(node);
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RELAZIONE: expecting NUM, ID, LEFT, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression restoRelazione(Expression expr) throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.EQUAL:
+	        {
+	            match(Tag.EQUAL);
+	            Expression node = espressione();
+	            return new Relation(Relop.EQUAL,expr,node);
+	        }
+	        case Tag.OR:
+	        {
+	            return expr;
+	        }
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
+	        case Tag.AND:
+	        {
+	            return expr;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-RELAZIONE: expecting EQUAL, OR, EOF, RIGHT, AND, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression funzione() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.SINISTRI:
+	        {
+	            match(Tag.SINISTRI);
+	            match(Tag.LEFT);
+	            Expression node = espressioneBooleana();
+	            match(Tag.RIGHT);
+	            return node;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for FUNZIONE: expecting SINISTRI, " + "found " + look);
+	        }
+	    }
+	}
+	public Indicator indicatore() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.ID:
+	        {
+	            Env saved = top;
+	            top = new Env(top);
+	            Identifier id = new Identifier(((Word) look));
+	            match(Tag.ID);
+	            match(Tag.LEFT);
+	            ArrayList<Binding> params = indyBinds();
+	            match(Tag.RIGHT);
+	            Expression expr = espressioneBooleana();
+	            top = saved;
+	            return new Indicator(id,params,expr);
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for INDICATORE: expecting ID, " + "found " + look);
+	        }
+	    }
+	}
 }

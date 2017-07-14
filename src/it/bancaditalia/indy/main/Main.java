@@ -1,22 +1,63 @@
 package it.bancaditalia.indy.main;
-import java.io.*; 
-import java.nio.charset.StandardCharsets;
 
-import it.bancaditalia.indy.inter.BoolExpr;
-//import it.bancaditalia.indy.inter.Indicator;
-import it.bancaditalia.indy.lexer.*; 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import it.bancaditalia.indy.inter.*;
+import it.bancaditalia.indy.lexer.*;
 import it.bancaditalia.indy.parser.*;
 
 public class Main {
 
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
-		String input = "(and (eq i j))";
-		ByteArrayInputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-		Lexer lex = new Lexer(stream);
-		Parser parse = new Parser(lex);
-//		Indicator ind = parse.indicator();
-//		System.out.println(ind.toString());
-		BoolExpr expr = parse.bexpr();
-		System.out.println(expr.toString());
+		
+//		Expression e = new Relation(Relop.EQUAL, new Identifier(new Word("a", Tag.ID)), 
+//				new NumericConstant(new Integer(2)));
+//		System.out.println(e.javascript());
+//		System.exit(0);
+		
+		// String input = "# a=1,b=2,c=3 @ a+b*c";
+		String input = "sco1 (a=2) #b=1 @ b==1 && a";
+
+		// // Indicator ind = parse.indicator();
+		// // System.out.println(ind.toString());
+		int n = 1;
+		long startTime = System.currentTimeMillis();
+
+		ByteArrayInputStream stream = new ByteArrayInputStream(
+				input.getBytes(StandardCharsets.UTF_8));
+		for (int i = 0; i < n; i++) {
+			stream.reset();
+			Lexer lex = new Lexer(stream);
+//			Expression expr;
+			Indicator ind;
+			// List<Token> list = lex.scanAll();
+			// System.out.println(list);
+			Parser parse = new Parser(lex);
+			ind = parse.indicatore();
+			parse.match(Tag.EOF);
+			System.out.println("result: " + ind.javascript());
+		}
+
+		long stopTime = System.currentTimeMillis();
+		long elapsedTime = stopTime - startTime;
+		System.out.println(elapsedTime);
+//
+//		startTime = System.currentTimeMillis();
+//
+//		for (int i = 0; i < n; i++) {
+//			float a = 1;
+//			float b = 2;
+//			float d = 1;
+//			float c = 3 * d;
+//			float expr = a + b * c;
+//		}
+//
+//		stopTime = System.currentTimeMillis();
+//		elapsedTime = stopTime - startTime;
+//		System.out.println(elapsedTime);
+
 	}
 }

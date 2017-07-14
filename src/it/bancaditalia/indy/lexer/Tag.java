@@ -7,7 +7,11 @@ public class Tag {
       EQ    = 261,  FALSE = 262,  GE    = 263,  ID   = 264, IF    = 265,
       INDEX = 266,  LE    = 267,  MINUS = 268,  NE   = 269, NUM   = 270,
       OR    = 271,  REAL  = 272,  TEMP  = 273,  TRUE = 274, WHILE = 275,
+      PLUS = 276, TIMES = 277, COMMA = 278, IN = 279, LET = 280, ASSIGN = 281,
+      NOT = 282, EQUAL = 283, SINISTRI = 284,
+      
+      EOF = 299,
    
-   	  INDICATOR = 300,	OPEN = 301, CLOSE = 302;
+   	  INDICATOR = 300,	LEFT = 301, RIGHT = 302;
 
 }
