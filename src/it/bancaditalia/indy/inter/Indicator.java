@@ -37,7 +37,7 @@ public class Indicator implements Attribute {
 		return "(function ("
 			 + ListUtils.car(bindings).getId().toString() 
 			 + ListUtils.cdr(bindings).stream().map((binding) -> binding.getId().toString()).reduce("",(acc, elem) -> acc + ", " + elem)
-			 + ") { return"
+			 + ") { return "
 			 + expr.javascript()
 			 + ";}) ("
 			 + ListUtils.car(bindings).getExp().javascript()

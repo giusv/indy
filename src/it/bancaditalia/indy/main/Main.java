@@ -12,14 +12,20 @@ public class Main {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
-		
-//		Expression e = new Relation(Relop.EQUAL, new Identifier(new Word("a", Tag.ID)), 
-//				new NumericConstant(new Integer(2)));
-//		System.out.println(e.javascript());
-//		System.exit(0);
-		
+
+		// Expression e = new Relation(Relop.EQUAL, new Identifier(new Word("a",
+		// Tag.ID)),
+		// new NumericConstant(new Integer(2)));
+		// System.out.println(e.javascript());
+		// System.exit(0);
+
 		// String input = "# a=1,b=2,c=3 @ a+b*c";
-		String input = "sco1 (a=2) #b=1 @ b==1 && a";
+		// String input = "sco1 (a=2) let b=1 in b==1";
+		String input = "sco1 (a=2) " 
+				+ "		let f = funzione (x) (2*x),"
+				+ "			g = funzione (x) (4*f(x)),"
+				+ "			fact = funzione (x) se x == 0 allora 1 altrimenti fact(x-1)"
+				+ "		in fact(5)";
 
 		// // Indicator ind = parse.indicator();
 		// // System.out.println(ind.toString());
@@ -31,7 +37,7 @@ public class Main {
 		for (int i = 0; i < n; i++) {
 			stream.reset();
 			Lexer lex = new Lexer(stream);
-//			Expression expr;
+			// Expression expr;
 			Indicator ind;
 			// List<Token> list = lex.scanAll();
 			// System.out.println(list);
@@ -44,20 +50,20 @@ public class Main {
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
 		System.out.println(elapsedTime);
-//
-//		startTime = System.currentTimeMillis();
-//
-//		for (int i = 0; i < n; i++) {
-//			float a = 1;
-//			float b = 2;
-//			float d = 1;
-//			float c = 3 * d;
-//			float expr = a + b * c;
-//		}
-//
-//		stopTime = System.currentTimeMillis();
-//		elapsedTime = stopTime - startTime;
-//		System.out.println(elapsedTime);
+		//
+		// startTime = System.currentTimeMillis();
+		//
+		// for (int i = 0; i < n; i++) {
+		// float a = 1;
+		// float b = 2;
+		// float d = 1;
+		// float c = 3 * d;
+		// float expr = a + b * c;
+		// }
+		//
+		// stopTime = System.currentTimeMillis();
+		// elapsedTime = stopTime - startTime;
+		// System.out.println(elapsedTime);
 
 	}
 }

@@ -36,7 +36,6 @@ public class Parser {
 		} else
 			error("syntax error: expecting " + t + ", found " + look.tag);
 	}
-
 	public Expression espressione() throws IOException
 	{
 	    switch(look.tag)
@@ -69,11 +68,7 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.OR:
-	        {
-	            return expr;
-	        }
-	        case Tag.EOF:
+	        case Tag.EQUAL:
 	        {
 	            return expr;
 	        }
@@ -81,7 +76,15 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.EQUAL:
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALLORA:
+	        {
+	            return expr;
+	        }
+	        case Tag.EOF:
 	        {
 	            return expr;
 	        }
@@ -89,11 +92,11 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.RIGHT:
+	        case Tag.IN:
 	        {
 	            return expr;
 	        }
-	        case Tag.IN:
+	        case Tag.OR:
 	        {
 	            return expr;
 	        }
@@ -106,7 +109,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-ESPRESSIONE: expecting OR, EOF, AND, EQUAL, COMMA, RIGHT, IN, PLUS, " + "found " + look);
+	            throw new Error("Error in production for RESTO-ESPRESSIONE: expecting EQUAL, AND, RIGHT, ALLORA, EOF, COMMA, IN, OR, PLUS, " + "found " + look);
 	        }
 	    }
 	}
@@ -116,20 +119,20 @@ public class Parser {
 	    {
 	        case Tag.NUM:
 	        {
-	            Expression node = ff();
-	            Expression syn = tp(node);
+	            Expression node = fattore();
+	            Expression syn = restoTermine(node);
 	            return syn;
 	        }
 	        case Tag.ID:
 	        {
-	            Expression node = ff();
-	            Expression syn = tp(node);
+	            Expression node = fattore();
+	            Expression syn = restoTermine(node);
 	            return syn;
 	        }
 	        case Tag.LEFT:
 	        {
-	            Expression node = ff();
-	            Expression syn = tp(node);
+	            Expression node = fattore();
+	            Expression syn = restoTermine(node);
 	            return syn;
 	        }
 	        default:
@@ -138,15 +141,15 @@ public class Parser {
 	        }
 	    }
 	}
-	public Expression tp(Expression expr) throws IOException
+	public Expression restoTermine(Expression expr) throws IOException
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.IN:
+	        case Tag.OR:
 	        {
 	            return expr;
 	        }
-	        case Tag.RIGHT:
+	        case Tag.IN:
 	        {
 	            return expr;
 	        }
@@ -154,7 +157,15 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.EQUAL:
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALLORA:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
 	        {
 	            return expr;
 	        }
@@ -162,11 +173,7 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.EOF:
-	        {
-	            return expr;
-	        }
-	        case Tag.OR:
+	        case Tag.EQUAL:
 	        {
 	            return expr;
 	        }
@@ -177,28 +184,23 @@ public class Parser {
 	        case Tag.TIMES:
 	        {
 	            match(Tag.TIMES);
-	            Expression node = ff();
-	            Expression syn = tp(new Times(expr,node));
+	            Expression node = fattore();
+	            Expression syn = restoTermine(new Times(expr,node));
 	            return syn;
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for TP: expecting IN, RIGHT, COMMA, EQUAL, AND, EOF, OR, PLUS, TIMES, " + "found " + look);
+	            throw new Error("Error in production for RESTO-TERMINE: expecting OR, IN, COMMA, EOF, ALLORA, RIGHT, AND, EQUAL, PLUS, TIMES, " + "found " + look);
 	        }
 	    }
 	}
-	public Expression ff() throws IOException
+	public Expression fattore() throws IOException
 	{
 	    switch(look.tag)
 	    {
 	        case Tag.ID:
 	        {
-	            Expression node = ((Expression) top.get(((Word) look).lexeme));
-	            if(node == null)
-	            {
-	                error(look.toString() + " undeclared");
-	            }
-	            match(Tag.ID);
+	            Expression node = chiamataId();
 	            return node;
 	        }
 	        case Tag.NUM:
@@ -216,11 +218,89 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for FF: expecting ID, NUM, LEFT, " + "found " + look);
+	            throw new Error("Error in production for FATTORE: expecting ID, NUM, LEFT, " + "found " + look);
 	        }
 	    }
 	}
-	public Expression indyLet() throws IOException
+	public Expression chiamataId() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.ID:
+	        {
+	            Expression node = ((Expression) top.get(((Word) look).lexeme));
+	            if(node == null)
+	            {
+	                error(look.toString() + " undeclared");
+	            }
+	            match(Tag.ID);
+	            Expression syn = restoChiamataId(node);
+	            return syn;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for CHIAMATA-ID: expecting ID, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression restoChiamataId(Expression expr) throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.LEFT:
+	        {
+	            match(Tag.LEFT);
+	            ArrayList<Expression> pars = invocazioneParametriFunzione();
+	            match(Tag.RIGHT);
+	            return new FunctionCall(((Identifier) expr),pars);
+	        }
+	        case Tag.PLUS:
+	        {
+	            return expr;
+	        }
+	        case Tag.EQUAL:
+	        {
+	            return expr;
+	        }
+	        case Tag.AND:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALLORA:
+	        {
+	            return expr;
+	        }
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.COMMA:
+	        {
+	            return expr;
+	        }
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
+	        case Tag.OR:
+	        {
+	            return expr;
+	        }
+	        case Tag.TIMES:
+	        {
+	            return expr;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-CHIAMATA-ID: expecting LEFT, PLUS, EQUAL, AND, RIGHT, ALLORA, EOF, COMMA, IN, OR, TIMES, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression sia() throws IOException
 	{
 	    switch(look.tag)
 	    {
@@ -229,7 +309,7 @@ public class Parser {
 	            match(Tag.LET);
 	            Env saved = top;
 	            top = new Env(top);
-	            ArrayList<Binding> binds = indyBinds();
+	            ArrayList<Binding> binds = legami();
 	            match(Tag.IN);
 	            Expression node = espressioneBooleana();
 	            top = saved;
@@ -237,35 +317,177 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for INDY-LET: expecting LET, " + "found " + look);
+	            throw new Error("Error in production for SIA: expecting LET, " + "found " + look);
 	        }
 	    }
 	}
-	public ArrayList<Binding> indyBinds() throws IOException
+	public Expression se() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.SE:
+	        {
+	            match(Tag.SE);
+	            Expression expr = espressioneBooleana();
+	            match(Tag.ALLORA);
+	            Expression then = espressioneBooleana();
+	            match(Tag.ALTRIMENTI);
+	            Expression otherwise = espressioneBooleana();
+	            return new If(((BooleanExpression) expr),then,otherwise);
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for SE: expecting SE, " + "found " + look);
+	        }
+	    }
+	}
+	public ArrayList<Identifier> dichiarazioneParametriFunzione() throws IOException
 	{
 	    switch(look.tag)
 	    {
 	        case Tag.ID:
 	        {
-	            Binding bind = indyBind();
-	            ArrayList<Binding> binds = indyBindsRest();
-	            return ((ArrayList<Binding>) ListUtils.cons(bind,binds));
+	            Identifier par = new Identifier(((Word) look));
+	            match(Tag.ID);
+	            top.put(par.getId()
+	                       .lexeme,par);
+	            ArrayList<Identifier> pars = restoDichiarazioneParametriFunzione();
+	            return ((ArrayList<Identifier>) ListUtils.cons(par,pars));
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for INDY-BINDS: expecting ID, " + "found " + look);
+	            throw new Error("Error in production for DICHIARAZIONE-PARAMETRI-FUNZIONE: expecting ID, " + "found " + look);
 	        }
 	    }
 	}
-	public ArrayList<Binding> indyBindsRest() throws IOException
+	public ArrayList<Identifier> restoDichiarazioneParametriFunzione() throws IOException
 	{
 	    switch(look.tag)
 	    {
 	        case Tag.COMMA:
 	        {
 	            match(Tag.COMMA);
-	            Binding bind = indyBind();
-	            ArrayList<Binding> binds = indyBindsRest();
+	            Identifier par = new Identifier(((Word) look));
+	            match(Tag.ID);
+	            top.put(par.getId()
+	                       .lexeme,par);
+	            ArrayList<Identifier> pars = restoDichiarazioneParametriFunzione();
+	            return ((ArrayList<Identifier>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return new ArrayList<Identifier>();
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-DICHIARAZIONE-PARAMETRI-FUNZIONE: expecting COMMA, RIGHT, " + "found " + look);
+	        }
+	    }
+	}
+	public ArrayList<Expression> invocazioneParametriFunzione() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.SE:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.TRUE:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.LEFT:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.ID:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.NUM:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.FALSE:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.NOT:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.LET:
+	        {
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for INVOCAZIONE-PARAMETRI-FUNZIONE: expecting SE, TRUE, LEFT, ID, NUM, FALSE, NOT, LET, " + "found " + look);
+	        }
+	    }
+	}
+	public ArrayList<Expression> restoInvocazioneParametriFunzione() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.COMMA:
+	        {
+	            match(Tag.COMMA);
+	            Expression par = espressioneBooleana();
+	            ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+	            return ((ArrayList<Expression>) ListUtils.cons(par,pars));
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return new ArrayList<Expression>();
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-INVOCAZIONE-PARAMETRI-FUNZIONE: expecting COMMA, RIGHT, " + "found " + look);
+	        }
+	    }
+	}
+	public ArrayList<Binding> legami() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.ID:
+	        {
+	            Binding bind = legame();
+	            ArrayList<Binding> binds = restoLegami();
+	            return ((ArrayList<Binding>) ListUtils.cons(bind,binds));
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for LEGAMI: expecting ID, " + "found " + look);
+	        }
+	    }
+	}
+	public ArrayList<Binding> restoLegami() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.COMMA:
+	        {
+	            match(Tag.COMMA);
+	            Binding bind = legame();
+	            ArrayList<Binding> binds = restoLegami();
 	            return ((ArrayList<Binding>) ListUtils.cons(bind,binds));
 	        }
 	        case Tag.RIGHT:
@@ -278,11 +500,11 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for INDY-BINDS-REST: expecting COMMA, RIGHT, IN, " + "found " + look);
+	            throw new Error("Error in production for RESTO-LEGAMI: expecting COMMA, RIGHT, IN, " + "found " + look);
 	        }
 	    }
 	}
-	public Binding indyBind() throws IOException
+	public Binding legame() throws IOException
 	{
 	    switch(look.tag)
 	    {
@@ -291,14 +513,69 @@ public class Parser {
 	            Identifier id = new Identifier(((Word) look));
 	            match(Tag.ID);
 	            match(Tag.ASSIGN);
-	            Expression node = espressione();
+	            Expression node = restoLegame();
 	            top.put(id.getId()
 	                      .lexeme,id);
 	            return new Binding(id,node);
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for INDY-BIND: expecting ID, " + "found " + look);
+	            throw new Error("Error in production for LEGAME: expecting ID, " + "found " + look);
+	        }
+	    }
+	}
+	public Expression restoLegame() throws IOException
+	{
+	    switch(look.tag)
+	    {
+	        case Tag.SE:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.TRUE:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.LEFT:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.ID:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.NUM:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.FALSE:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.NOT:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.LET:
+	        {
+	            Expression node = espressioneBooleana();
+	            return node;
+	        }
+	        case Tag.FUNZIONE:
+	        {
+	            Expression node = funzione();
+	            return node;
+	        }
+	        default:
+	        {
+	            throw new Error("Error in production for RESTO-LEGAME: expecting SE, TRUE, LEFT, ID, NUM, FALSE, NOT, LET, FUNZIONE, " + "found " + look);
 	        }
 	    }
 	}
@@ -336,26 +613,25 @@ public class Parser {
 	            Expression syn = restoEspressioneBooleana(node);
 	            return syn;
 	        }
-	        case Tag.SINISTRI:
-	        {
-	            Expression node = termineBooleano();
-	            Expression syn = restoEspressioneBooleana(node);
-	            return syn;
-	        }
 	        case Tag.TRUE:
 	        {
 	            Expression node = termineBooleano();
 	            Expression syn = restoEspressioneBooleana(node);
 	            return syn;
 	        }
+	        case Tag.SE:
+	        {
+	            Expression node = se();
+	            return node;
+	        }
 	        case Tag.LET:
 	        {
-	            Expression node = indyLet();
+	            Expression node = sia();
 	            return node;
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for ESPRESSIONE-BOOLEANA: expecting NOT, FALSE, NUM, ID, LEFT, SINISTRI, TRUE, LET, " + "found " + look);
+	            throw new Error("Error in production for ESPRESSIONE-BOOLEANA: expecting NOT, FALSE, NUM, ID, LEFT, TRUE, SE, LET, " + "found " + look);
 	        }
 	    }
 	}
@@ -363,7 +639,19 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
+	        case Tag.COMMA:
+	        {
+	            return expr;
+	        }
 	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALLORA:
 	        {
 	            return expr;
 	        }
@@ -380,7 +668,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-ESPRESSIONE-BOOLEANA: expecting EOF, RIGHT, OR, " + "found " + look);
+	            throw new Error("Error in production for RESTO-ESPRESSIONE-BOOLEANA: expecting IN, COMMA, EOF, ALLORA, RIGHT, OR, " + "found " + look);
 	        }
 	    }
 	}
@@ -389,12 +677,6 @@ public class Parser {
 	    switch(look.tag)
 	    {
 	        case Tag.TRUE:
-	        {
-	            Expression node = fattoreBooleano();
-	            Expression syn = restoTermineBooleano(node);
-	            return syn;
-	        }
-	        case Tag.SINISTRI:
 	        {
 	            Expression node = fattoreBooleano();
 	            Expression syn = restoTermineBooleano(node);
@@ -432,7 +714,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for TERMINE-BOOLEANO: expecting TRUE, SINISTRI, LEFT, ID, NUM, FALSE, NOT, " + "found " + look);
+	            throw new Error("Error in production for TERMINE-BOOLEANO: expecting TRUE, LEFT, ID, NUM, FALSE, NOT, " + "found " + look);
 	        }
 	    }
 	}
@@ -444,7 +726,19 @@ public class Parser {
 	        {
 	            return expr;
 	        }
+	        case Tag.ALLORA:
+	        {
+	            return expr;
+	        }
 	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.COMMA:
+	        {
+	            return expr;
+	        }
+	        case Tag.IN:
 	        {
 	            return expr;
 	        }
@@ -461,7 +755,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-TERMINE-BOOLEANO: expecting RIGHT, EOF, OR, AND, " + "found " + look);
+	            throw new Error("Error in production for RESTO-TERMINE-BOOLEANO: expecting RIGHT, ALLORA, EOF, COMMA, IN, OR, AND, " + "found " + look);
 	        }
 	    }
 	}
@@ -469,11 +763,6 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.SINISTRI:
-	        {
-	            Expression node = funzione();
-	            return node;
-	        }
 	        case Tag.LEFT:
 	        {
 	            Expression node = relazione();
@@ -507,7 +796,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for FATTORE-BOOLEANO: expecting SINISTRI, LEFT, ID, NUM, FALSE, TRUE, NOT, " + "found " + look);
+	            throw new Error("Error in production for FATTORE-BOOLEANO: expecting LEFT, ID, NUM, FALSE, TRUE, NOT, " + "found " + look);
 	        }
 	    }
 	}
@@ -553,7 +842,19 @@ public class Parser {
 	        {
 	            return expr;
 	        }
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
+	        case Tag.COMMA:
+	        {
+	            return expr;
+	        }
 	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALLORA:
 	        {
 	            return expr;
 	        }
@@ -567,7 +868,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-RELAZIONE: expecting EQUAL, OR, EOF, RIGHT, AND, " + "found " + look);
+	            throw new Error("Error in production for RESTO-RELAZIONE: expecting EQUAL, OR, IN, COMMA, EOF, ALLORA, RIGHT, AND, " + "found " + look);
 	        }
 	    }
 	}
@@ -575,17 +876,21 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.SINISTRI:
+	        case Tag.FUNZIONE:
 	        {
-	            match(Tag.SINISTRI);
+	            Env saved = top;
+	            top = new Env(top);
+	            match(Tag.FUNZIONE);
 	            match(Tag.LEFT);
-	            Expression node = espressioneBooleana();
+	            ArrayList<Identifier> pars = dichiarazioneParametriFunzione();
 	            match(Tag.RIGHT);
-	            return node;
+	            Expression expr = espressioneBooleana();
+	            top = saved;
+	            return new FunctionDeclaration(pars,expr);
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for FUNZIONE: expecting SINISTRI, " + "found " + look);
+	            throw new Error("Error in production for FUNZIONE: expecting FUNZIONE, " + "found " + look);
 	        }
 	    }
 	}
@@ -600,7 +905,7 @@ public class Parser {
 	            Identifier id = new Identifier(((Word) look));
 	            match(Tag.ID);
 	            match(Tag.LEFT);
-	            ArrayList<Binding> params = indyBinds();
+	            ArrayList<Binding> params = legami();
 	            match(Tag.RIGHT);
 	            Expression expr = espressioneBooleana();
 	            top = saved;

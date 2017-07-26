@@ -17,11 +17,16 @@ public class Lexer {
 
 	public Lexer(ByteArrayInputStream input) {
 		this.input = input;
-		reserve(new Word("if", Tag.IF));
-		reserve(new Word("else", Tag.ELSE));
+		reserve(new Word("se", Tag.SE));
+		reserve(new Word("allora", Tag.ALLORA));
+		reserve(new Word("altrimenti", Tag.ALTRIMENTI));
 		reserve(new Word("while", Tag.WHILE));
 		reserve(new Word("do", Tag.DO));
 		reserve(new Word("break", Tag.BREAK));
+		reserve(new Word("let", Tag.LET));
+		reserve(new Word("in", Tag.IN));
+		reserve(new Word("funzione", Tag.FUNZIONE));
+		reserve(new Word("sinistri", Tag.SINISTRI));
 
 		reserve(Word.True);
 		reserve(Word.False);
