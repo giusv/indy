@@ -4,6 +4,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import it.bancaditalia.indy.inter.*;
 import it.bancaditalia.indy.lexer.*;
 import it.bancaditalia.indy.parser.*;
@@ -22,34 +26,45 @@ public class Main {
 		// String input = "# a=1,b=2,c=3 @ a+b*c";
 		// String input = "sco1 (a=2) let b=1 in b==1";
 		String input = "sco1 (a=2) " 
-				+ "		let f = funzione (x) (2*x),"
-				+ "			g = funzione (x) (4*f(x)),"
-				+ "			fact = funzione (x) se x == 0 allora 1 altrimenti fact(x-1)"
-				+ "		in fact(5)";
+				+ "		let fact(x) = se x == 0 allora 1 altrimenti x*fact(x-1)"
+				+ "		in fact(5) == 120";
 
 		// // Indicator ind = parse.indicator();
 		// // System.out.println(ind.toString());
-		int n = 1;
-		long startTime = System.currentTimeMillis();
-
-		ByteArrayInputStream stream = new ByteArrayInputStream(
+		ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("nashorn");
+		
+        ByteArrayInputStream stream = new ByteArrayInputStream(
 				input.getBytes(StandardCharsets.UTF_8));
+        
+        stream.reset();
+        Lexer lex = new Lexer(stream);
+        // Expression expr;
+        Indicator ind;
+        // List<Token> list = lex.scanAll();
+        // System.out.println(list);
+        Parser parse = new Parser(lex);
+        ind = parse.indicatore();
+        parse.match(Tag.EOF);
+        System.out.println("resulting javascript: " + ind.javascript());
+        
+        long startTime = System.currentTimeMillis();
+        int n = 10;
 		for (int i = 0; i < n; i++) {
-			stream.reset();
-			Lexer lex = new Lexer(stream);
-			// Expression expr;
-			Indicator ind;
-			// List<Token> list = lex.scanAll();
-			// System.out.println(list);
-			Parser parse = new Parser(lex);
-			ind = parse.indicatore();
-			parse.match(Tag.EOF);
-			System.out.println("result: " + ind.javascript());
+	        Object result;
+			try {
+				result = engine.eval(ind.javascript());
+				System.out.println("resulting value: " + result);
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			}
+	        
+	        
 		}
 
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
-		System.out.println(elapsedTime);
+		System.out.println("elapsed time for each evaluation: " + (float) elapsedTime/(float) n + " msec");
 		//
 		// startTime = System.currentTimeMillis();
 		//

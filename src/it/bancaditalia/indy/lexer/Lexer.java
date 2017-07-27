@@ -93,6 +93,12 @@ public class Lexer {
 		case '+':
 			readch();
 			return Word.plus;
+		case '-':
+			readch();
+			return Word.minus;
+		case '/':
+			readch();
+			return Word.divide;
 		case '*':
 			readch();
 			return Word.times;

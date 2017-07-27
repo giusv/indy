@@ -68,11 +68,7 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.EQUAL:
-	        {
-	            return expr;
-	        }
-	        case Tag.AND:
+	        case Tag.OR:
 	        {
 	            return expr;
 	        }
@@ -84,11 +80,11 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.EOF:
+	        case Tag.ALTRIMENTI:
 	        {
 	            return expr;
 	        }
-	        case Tag.COMMA:
+	        case Tag.EOF:
 	        {
 	            return expr;
 	        }
@@ -96,9 +92,24 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.OR:
+	        case Tag.COMMA:
 	        {
 	            return expr;
+	        }
+	        case Tag.AND:
+	        {
+	            return expr;
+	        }
+	        case Tag.EQUAL:
+	        {
+	            return expr;
+	        }
+	        case Tag.MINUS:
+	        {
+	            match(Tag.MINUS);
+	            Expression node = termine();
+	            Expression syn = restoEspressione(new Minus(expr,node));
+	            return syn;
 	        }
 	        case Tag.PLUS:
 	        {
@@ -109,7 +120,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-ESPRESSIONE: expecting EQUAL, AND, RIGHT, ALLORA, EOF, COMMA, IN, OR, PLUS, " + "found " + look);
+	            throw new Error("Error in production for RESTO-ESPRESSIONE: expecting OR, RIGHT, ALLORA, ALTRIMENTI, EOF, IN, COMMA, AND, EQUAL, MINUS, PLUS, " + "found " + look);
 	        }
 	    }
 	}
@@ -145,11 +156,11 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.OR:
+	        case Tag.EQUAL:
 	        {
 	            return expr;
 	        }
-	        case Tag.IN:
+	        case Tag.AND:
 	        {
 	            return expr;
 	        }
@@ -157,7 +168,15 @@ public class Parser {
 	        {
 	            return expr;
 	        }
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
 	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALTRIMENTI:
 	        {
 	            return expr;
 	        }
@@ -169,17 +188,24 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.AND:
-	        {
-	            return expr;
-	        }
-	        case Tag.EQUAL:
+	        case Tag.OR:
 	        {
 	            return expr;
 	        }
 	        case Tag.PLUS:
 	        {
 	            return expr;
+	        }
+	        case Tag.MINUS:
+	        {
+	            return expr;
+	        }
+	        case Tag.DIVIDE:
+	        {
+	            match(Tag.DIVIDE);
+	            Expression node = fattore();
+	            Expression syn = restoTermine(new Divide(expr,node));
+	            return syn;
 	        }
 	        case Tag.TIMES:
 	        {
@@ -190,7 +216,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-TERMINE: expecting OR, IN, COMMA, EOF, ALLORA, RIGHT, AND, EQUAL, PLUS, TIMES, " + "found " + look);
+	            throw new Error("Error in production for RESTO-TERMINE: expecting EQUAL, AND, COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, PLUS, MINUS, DIVIDE, TIMES, " + "found " + look);
 	        }
 	    }
 	}
@@ -254,7 +280,11 @@ public class Parser {
 	            match(Tag.RIGHT);
 	            return new FunctionCall(((Identifier) expr),pars);
 	        }
-	        case Tag.PLUS:
+	        case Tag.DIVIDE:
+	        {
+	            return expr;
+	        }
+	        case Tag.TIMES:
 	        {
 	            return expr;
 	        }
@@ -266,18 +296,6 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.RIGHT:
-	        {
-	            return expr;
-	        }
-	        case Tag.ALLORA:
-	        {
-	            return expr;
-	        }
-	        case Tag.EOF:
-	        {
-	            return expr;
-	        }
 	        case Tag.COMMA:
 	        {
 	            return expr;
@@ -286,17 +304,37 @@ public class Parser {
 	        {
 	            return expr;
 	        }
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALTRIMENTI:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALLORA:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
+	        {
+	            return expr;
+	        }
 	        case Tag.OR:
 	        {
 	            return expr;
 	        }
-	        case Tag.TIMES:
+	        case Tag.PLUS:
+	        {
+	            return expr;
+	        }
+	        case Tag.MINUS:
 	        {
 	            return expr;
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-CHIAMATA-ID: expecting LEFT, PLUS, EQUAL, AND, RIGHT, ALLORA, EOF, COMMA, IN, OR, TIMES, " + "found " + look);
+	            throw new Error("Error in production for RESTO-CHIAMATA-ID: expecting LEFT, DIVIDE, TIMES, EQUAL, AND, COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, PLUS, MINUS, " + "found " + look);
 	        }
 	    }
 	}
@@ -490,17 +528,17 @@ public class Parser {
 	            ArrayList<Binding> binds = restoLegami();
 	            return ((ArrayList<Binding>) ListUtils.cons(bind,binds));
 	        }
-	        case Tag.RIGHT:
+	        case Tag.IN:
 	        {
 	            return new ArrayList<Binding>();
 	        }
-	        case Tag.IN:
+	        case Tag.RIGHT:
 	        {
 	            return new ArrayList<Binding>();
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-LEGAMI: expecting COMMA, RIGHT, IN, " + "found " + look);
+	            throw new Error("Error in production for RESTO-LEGAMI: expecting COMMA, IN, RIGHT, " + "found " + look);
 	        }
 	    }
 	}
@@ -512,10 +550,7 @@ public class Parser {
 	        {
 	            Identifier id = new Identifier(((Word) look));
 	            match(Tag.ID);
-	            match(Tag.ASSIGN);
-	            Expression node = restoLegame();
-	            top.put(id.getId()
-	                      .lexeme,id);
+	            Expression node = restoLegame(id);
 	            return new Binding(id,node);
 	        }
 	        default:
@@ -524,58 +559,35 @@ public class Parser {
 	        }
 	    }
 	}
-	public Expression restoLegame() throws IOException
+	public Expression restoLegame(Identifier id) throws IOException
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.SE:
+	        case Tag.ASSIGN:
 	        {
-	            Expression node = espressioneBooleana();
-	            return node;
-	        }
-	        case Tag.TRUE:
-	        {
+	            match(Tag.ASSIGN);
+	            top.put(id.getId()
+	                      .lexeme,id);
 	            Expression node = espressioneBooleana();
 	            return node;
 	        }
 	        case Tag.LEFT:
 	        {
-	            Expression node = espressioneBooleana();
-	            return node;
-	        }
-	        case Tag.ID:
-	        {
-	            Expression node = espressioneBooleana();
-	            return node;
-	        }
-	        case Tag.NUM:
-	        {
-	            Expression node = espressioneBooleana();
-	            return node;
-	        }
-	        case Tag.FALSE:
-	        {
-	            Expression node = espressioneBooleana();
-	            return node;
-	        }
-	        case Tag.NOT:
-	        {
-	            Expression node = espressioneBooleana();
-	            return node;
-	        }
-	        case Tag.LET:
-	        {
-	            Expression node = espressioneBooleana();
-	            return node;
-	        }
-	        case Tag.FUNZIONE:
-	        {
-	            Expression node = funzione();
-	            return node;
+	            match(Tag.LEFT);
+	            top.put(id.getId()
+	                      .lexeme,id);
+	            Env saved = top;
+	            top = new Env(top);
+	            ArrayList<Identifier> pars = dichiarazioneParametriFunzione();
+	            match(Tag.RIGHT);
+	            match(Tag.ASSIGN);
+	            Expression expr = espressioneBooleana();
+	            top = saved;
+	            return new FunctionDeclaration(id,pars,expr);
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-LEGAME: expecting SE, TRUE, LEFT, ID, NUM, FALSE, NOT, LET, FUNZIONE, " + "found " + look);
+	            throw new Error("Error in production for RESTO-LEGAME: expecting ASSIGN, LEFT, " + "found " + look);
 	        }
 	    }
 	}
@@ -639,15 +651,7 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.IN:
-	        {
-	            return expr;
-	        }
-	        case Tag.COMMA:
-	        {
-	            return expr;
-	        }
-	        case Tag.EOF:
+	        case Tag.RIGHT:
 	        {
 	            return expr;
 	        }
@@ -655,7 +659,19 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.RIGHT:
+	        case Tag.ALTRIMENTI:
+	        {
+	            return expr;
+	        }
+	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
+	        case Tag.COMMA:
 	        {
 	            return expr;
 	        }
@@ -668,7 +684,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-ESPRESSIONE-BOOLEANA: expecting IN, COMMA, EOF, ALLORA, RIGHT, OR, " + "found " + look);
+	            throw new Error("Error in production for RESTO-ESPRESSIONE-BOOLEANA: expecting RIGHT, ALLORA, ALTRIMENTI, EOF, IN, COMMA, OR, " + "found " + look);
 	        }
 	    }
 	}
@@ -722,11 +738,11 @@ public class Parser {
 	{
 	    switch(look.tag)
 	    {
-	        case Tag.RIGHT:
+	        case Tag.COMMA:
 	        {
 	            return expr;
 	        }
-	        case Tag.ALLORA:
+	        case Tag.IN:
 	        {
 	            return expr;
 	        }
@@ -734,11 +750,15 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.COMMA:
+	        case Tag.ALTRIMENTI:
 	        {
 	            return expr;
 	        }
-	        case Tag.IN:
+	        case Tag.ALLORA:
+	        {
+	            return expr;
+	        }
+	        case Tag.RIGHT:
 	        {
 	            return expr;
 	        }
@@ -755,7 +775,7 @@ public class Parser {
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-TERMINE-BOOLEANO: expecting RIGHT, ALLORA, EOF, COMMA, IN, OR, AND, " + "found " + look);
+	            throw new Error("Error in production for RESTO-TERMINE-BOOLEANO: expecting COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, AND, " + "found " + look);
 	        }
 	    }
 	}
@@ -838,11 +858,7 @@ public class Parser {
 	            Expression node = espressione();
 	            return new Relation(Relop.EQUAL,expr,node);
 	        }
-	        case Tag.OR:
-	        {
-	            return expr;
-	        }
-	        case Tag.IN:
+	        case Tag.AND:
 	        {
 	            return expr;
 	        }
@@ -850,7 +866,15 @@ public class Parser {
 	        {
 	            return expr;
 	        }
+	        case Tag.IN:
+	        {
+	            return expr;
+	        }
 	        case Tag.EOF:
+	        {
+	            return expr;
+	        }
+	        case Tag.ALTRIMENTI:
 	        {
 	            return expr;
 	        }
@@ -862,35 +886,13 @@ public class Parser {
 	        {
 	            return expr;
 	        }
-	        case Tag.AND:
+	        case Tag.OR:
 	        {
 	            return expr;
 	        }
 	        default:
 	        {
-	            throw new Error("Error in production for RESTO-RELAZIONE: expecting EQUAL, OR, IN, COMMA, EOF, ALLORA, RIGHT, AND, " + "found " + look);
-	        }
-	    }
-	}
-	public Expression funzione() throws IOException
-	{
-	    switch(look.tag)
-	    {
-	        case Tag.FUNZIONE:
-	        {
-	            Env saved = top;
-	            top = new Env(top);
-	            match(Tag.FUNZIONE);
-	            match(Tag.LEFT);
-	            ArrayList<Identifier> pars = dichiarazioneParametriFunzione();
-	            match(Tag.RIGHT);
-	            Expression expr = espressioneBooleana();
-	            top = saved;
-	            return new FunctionDeclaration(pars,expr);
-	        }
-	        default:
-	        {
-	            throw new Error("Error in production for FUNZIONE: expecting FUNZIONE, " + "found " + look);
+	            throw new Error("Error in production for RESTO-RELAZIONE: expecting EQUAL, AND, COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, " + "found " + look);
 	        }
 	    }
 	}

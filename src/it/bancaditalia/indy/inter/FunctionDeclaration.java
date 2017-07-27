@@ -7,13 +7,24 @@ import java.util.List;
 public class FunctionDeclaration extends Expression {
 
 	// private Identifier name;
+	Identifier id;
 	private List<Identifier> parameters;
 	Expression expr;
 
-	public FunctionDeclaration(List<Identifier> parameters, Expression expr) {
+	public FunctionDeclaration(Identifier id, List<Identifier> parameters,
+			Expression expr) {
 		super();
+		this.id = id;
 		this.parameters = parameters;
 		this.expr = expr;
+	}
+
+	public Identifier getId() {
+		return id;
+	}
+
+	public void setId(Identifier id) {
+		this.id = id;
 	}
 
 	public List<Identifier> getParameters() {
@@ -34,7 +45,7 @@ public class FunctionDeclaration extends Expression {
 
 	@Override
 	public String javascript() {
-		return "function ("
+		return "function " + id.javascript() + "("
 				+ ListUtils.car(parameters).javascript()
 				+ ListUtils.cdr(parameters).stream()
 						.map((binding) -> binding.javascript())

@@ -16,6 +16,7 @@ public class Word extends Token {
    	  plus  = new Word( "+", Tag.PLUS ),
    	  minus  = new Word( "-", Tag.MINUS ),
    	  times = new Word( "*", Tag.TIMES),
+   	  divide = new Word( "/", Tag.DIVIDE),
 
       True   = new Word( "true",  Tag.TRUE  ),
       False  = new Word( "false", Tag.FALSE ),

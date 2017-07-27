@@ -38,9 +38,7 @@ public class If extends Expression {
 
 	@Override
 	public String javascript() {
-		return "if (" + condition.javascript() + ") "
-				+ "{" + then.toString() + "}"
-				+ "else {" + otherwise.toString() + "}";
+		return  condition.javascript() + " ? " + then.javascript() + " : " + otherwise.javascript();
 	}
 
 }
