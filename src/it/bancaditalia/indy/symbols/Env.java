@@ -6,21 +6,21 @@ import it.bancaditalia.indy.inter.*;
 
 public class Env {
 
-	private Hashtable<String, Identifier> table;
+	private Hashtable<String, Expression> table;
 	protected Env prev;
 
 	public Env(Env n) {
-		table = new Hashtable<String, Identifier>();
+		table = new Hashtable<String, Expression>();
 		prev = n;
 	}
 
-	public void put(String i, Identifier e) {
+	public void put(String i, Expression e) {
 		table.put(i, e);
 	}
 
-	public Identifier get(String id) {
+	public Expression get(String id) {
 		for (Env e = this; e != null; e = e.prev) {
-			Identifier found = (Identifier) (e.table.get(id));
+			Expression found = (Expression) (e.table.get(id));
 			if (found != null)
 				return found;
 		}

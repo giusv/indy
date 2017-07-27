@@ -1,5 +1,7 @@
 package it.bancaditalia.indy.inter;
 
+import it.bancaditalia.indy.symbols.Type;
+
 public class BooleanConstant extends Constant {
 
 	private Boolean value;
@@ -7,6 +9,7 @@ public class BooleanConstant extends Constant {
 	public BooleanConstant(Boolean value) {
 		super();
 		this.value = value;
+		this.type = Type.BOOLEAN;
 	}
 
 	public Boolean getValue() {

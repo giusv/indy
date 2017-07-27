@@ -26,6 +26,6 @@ public class Word extends Token {
 	  comma = new Word( ",",     Tag.COMMA),
 	  assign = new Word( "assign",     Tag.ASSIGN),
 	  equal = new Word( "equal",     Tag.EQUAL),
-	  sinistri = new Word( "sinistri",     Tag.SINISTRI),
+	  colon = new Word( ":",     Tag.COLON),
       eof = new Word("$", Tag.EOF);
 }

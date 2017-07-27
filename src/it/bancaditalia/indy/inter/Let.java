@@ -13,6 +13,7 @@ public class Let extends Expression {
 		super();
 		this.bindings = bindings;
 		this.expr = expr;
+		this.type = expr.type;
 	}
 
 	public List<Binding> getBindings() {

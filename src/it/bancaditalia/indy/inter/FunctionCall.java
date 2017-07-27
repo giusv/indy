@@ -6,21 +6,22 @@ import java.util.List;
 
 public class FunctionCall extends Expression {
 
-	private Identifier name;
+	private FunctionDeclaration func;
 	private List<Expression> parameters;
 
-	public FunctionCall(Identifier name, List<Expression> parameters) {
+	public FunctionCall(FunctionDeclaration func, List<Expression> parameters) {
 		super();
-		this.name = name;
+		this.func = func;
 		this.parameters = parameters;
+		this.type = func.type;
 	}
 
-	public Identifier getName() {
-		return name;
+	public FunctionDeclaration getfunc() {
+		return func;
 	}
 
-	public void setName(Identifier name) {
-		this.name = name;
+	public void setfunc(FunctionDeclaration func) {
+		this.func = func;
 	}
 
 	public List<Expression> getParameters() {
@@ -33,7 +34,7 @@ public class FunctionCall extends Expression {
 
 	@Override
 	public String javascript() {
-		return name.javascript() + "("
+		return func.getId().javascript() + "("
 				+ ListUtils.car(parameters).javascript()
 				+ ListUtils.cdr(parameters).stream()
 						.map((binding) -> binding.javascript())

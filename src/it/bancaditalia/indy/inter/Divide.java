@@ -1,13 +1,21 @@
 package it.bancaditalia.indy.inter;
 
+import it.bancaditalia.indy.symbols.Type;
+
 public class Divide extends ArithmeticExpression {
 
 	private Expression op1, op2;
 
-	public Divide(Expression op1, Expression op2) {
+	public Divide(Expression op1, Expression op2) throws TypeException {
 		super();
 		this.op1 = op1;
 		this.op2 = op2;
+		
+		if (op1.type != Type.NUMBER)
+			error("Primo operando in / non ha tipo NUMBER , ma " + op1.type);
+		if (op2.type != Type.NUMBER)
+			error("Secondo operando in / non ha tipo NUMBER , ma " + op2.type);
+		this.type = Type.NUMBER;
 	}
 
 	public Expression getOp1() {

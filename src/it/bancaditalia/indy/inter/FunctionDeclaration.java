@@ -1,5 +1,6 @@
 package it.bancaditalia.indy.inter;
 
+import it.bancaditalia.indy.symbols.Type;
 import it.bancaditalia.indy.utils.ListUtils;
 
 import java.util.List;
@@ -11,12 +12,22 @@ public class FunctionDeclaration extends Expression {
 	private List<Identifier> parameters;
 	Expression expr;
 
-	public FunctionDeclaration(Identifier id, List<Identifier> parameters,
-			Expression expr) {
+	public FunctionDeclaration(Identifier id, Type type,
+			List<Identifier> parameters, Expression expr) {
 		super();
 		this.id = id;
 		this.parameters = parameters;
 		this.expr = expr;
+		this.type = type;
+	}
+	
+	public FunctionDeclaration(Identifier id, Type type,
+			List<Identifier> parameters) {
+		super();
+		this.id = id;
+		this.parameters = parameters;
+		this.expr = null;
+		this.type = type;
 	}
 
 	public Identifier getId() {
@@ -45,7 +56,9 @@ public class FunctionDeclaration extends Expression {
 
 	@Override
 	public String javascript() {
-		return "function " + id.javascript() + "("
+		return "function "
+				+ id.javascript()
+				+ "("
 				+ ListUtils.car(parameters).javascript()
 				+ ListUtils.cdr(parameters).stream()
 						.map((binding) -> binding.javascript())

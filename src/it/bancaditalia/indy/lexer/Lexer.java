@@ -26,15 +26,11 @@ public class Lexer {
 		reserve(new Word("let", Tag.LET));
 		reserve(new Word("in", Tag.IN));
 		reserve(new Word("funzione", Tag.FUNZIONE));
-		reserve(new Word("sinistri", Tag.SINISTRI));
+		reserve(new Word("numero", Tag.NUMBER));
 
 		reserve(Word.True);
 		reserve(Word.False);
 
-		reserve(Type.Int);
-		reserve(Type.Char);
-		reserve(Type.Bool);
-		reserve(Type.Float);
 	}
 
 	void readch() throws IOException {
@@ -81,15 +77,9 @@ public class Lexer {
 		case ',':
 			readch();
 			return Word.comma;
-		case 'S':
+		case ':':
 			readch();
-			return Word.sinistri;
-		case '#':
-			readch();
-			return Word.let;
-		case '@':
-			readch();
-			return Word.in;
+			return Word.colon;
 		case '+':
 			readch();
 			return Word.plus;

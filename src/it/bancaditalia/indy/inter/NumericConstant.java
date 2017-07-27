@@ -1,5 +1,7 @@
 package it.bancaditalia.indy.inter;
 
+import it.bancaditalia.indy.symbols.Type;
+
 public class NumericConstant extends Constant {
 
 	private Integer value;
@@ -7,6 +9,7 @@ public class NumericConstant extends Constant {
 	public NumericConstant(Integer value) {
 		super();
 		this.value = value;
+		this.type = Type.NUMBER;
 	}
 
 	public Integer getValue() {

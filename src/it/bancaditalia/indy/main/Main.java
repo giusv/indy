@@ -26,8 +26,8 @@ public class Main {
 		// String input = "# a=1,b=2,c=3 @ a+b*c";
 		// String input = "sco1 (a=2) let b=1 in b==1";
 		String input = "sco1 (a=2) " 
-				+ "		let fact(x) = se x == 0 allora 1 altrimenti x*fact(x-1)"
-				+ "		in fact(5) == 120";
+				+ "		let fact(x : numero) : numero = se x == 0 allora 1 altrimenti x*fact(x-1)"
+				+ "		in fact(5) && true";
 
 		// // Indicator ind = parse.indicator();
 		// // System.out.println(ind.toString());
@@ -40,11 +40,15 @@ public class Main {
         stream.reset();
         Lexer lex = new Lexer(stream);
         // Expression expr;
-        Indicator ind;
+        Indicator ind = null;
         // List<Token> list = lex.scanAll();
         // System.out.println(list);
         Parser parse = new Parser(lex);
-        ind = parse.indicatore();
+        try {
+			ind = parse.indicatore();
+		} catch (TypeException e1) {
+			e1.printStackTrace();
+		}
         parse.match(Tag.EOF);
         System.out.println("resulting javascript: " + ind.javascript());
         
