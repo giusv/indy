@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -25,9 +26,11 @@ public class Main {
 
 		// String input = "# a=1,b=2,c=3 @ a+b*c";
 		// String input = "sco1 (a=2) let b=1 in b==1";
-		String input = "sco1 (a=2) " 
-				+ "		let fact(x : numero) : numero = se x == 0 allora 1 altrimenti x*fact(x-1)"
-				+ "		in fact(5) && true";
+		String input = "sco1 (veicolo) (comparatore(x : numero, y : numero) : logico = x == y) " 
+				+ "		let b = 2,"
+				+ "		    trans(v : veicolo) : numero = 1,"
+				+ "         fact(x : numero) : numero = se x == 0 allora 1 altrimenti x*fact(x-1)"
+				+ "		in trans(veicolo) == 1";
 
 		// // Indicator ind = parse.indicator();
 		// // System.out.println(ind.toString());
@@ -53,13 +56,15 @@ public class Main {
         System.out.println("resulting javascript: " + ind.javascript());
         
         long startTime = System.currentTimeMillis();
-        int n = 10;
+        int n = 100;
 		for (int i = 0; i < n; i++) {
 	        Object result;
 			try {
-				result = engine.eval(ind.javascript());
+				engine.eval(ind.javascript());
+				Invocable invocable = (Invocable) engine;
+				result = invocable.invokeFunction("sco1", 5);
 				System.out.println("resulting value: " + result);
-			} catch (ScriptException e) {
+			} catch (ScriptException | NoSuchMethodException e) {
 				e.printStackTrace();
 			}
 	        

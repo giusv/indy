@@ -6,11 +6,13 @@ import java.util.List;
 
 public class Indicator implements Attribute {
 	private Identifier name;
+	private Identifier input;
 	private List<Binding> bindings;
 	private Expression expr;
-	public Indicator(Identifier name, List<Binding> bindings, Expression expr) {
+	public Indicator(Identifier name, Identifier input, List<Binding> bindings, Expression expr) {
 		super();
 		this.name = name;
+		this.input = input;
 		this.bindings = bindings;
 		this.expr = expr;
 	}
@@ -34,7 +36,7 @@ public class Indicator implements Attribute {
 	}
 	@Override
 	public String javascript() {
-		return "(function ("
+		return "var " + name.javascript() + " = function(" + input.javascript() + ") { return ((function ("
 			 + ListUtils.car(bindings).getId().toString() 
 			 + ListUtils.cdr(bindings).stream().map((binding) -> binding.getId().toString()).reduce("",(acc, elem) -> acc + ", " + elem)
 			 + ") { return "
@@ -42,7 +44,13 @@ public class Indicator implements Attribute {
 			 + ";}) ("
 			 + ListUtils.car(bindings).getExp().javascript()
 			 + ListUtils.cdr(bindings).stream().map((binding) -> binding.getExp().javascript()).reduce("",(acc, elem) -> acc + ", " + elem)
-			 + ")";
+			 + "));};";
+	}
+	public Identifier getInput() {
+		return input;
+	}
+	public void setInput(Identifier input) {
+		this.input = input;
 	}	
 }
 	

@@ -27,6 +27,9 @@ public class Lexer {
 		reserve(new Word("in", Tag.IN));
 		reserve(new Word("funzione", Tag.FUNZIONE));
 		reserve(new Word("numero", Tag.NUMBER));
+		reserve(new Word("logico", Tag.BOOLEAN));
+		reserve(new Word("soggetto", Tag.SOGGETTO));
+		reserve(new Word("veicolo", Tag.VEICOLO));
 
 		reserve(Word.True);
 		reserve(Word.False);

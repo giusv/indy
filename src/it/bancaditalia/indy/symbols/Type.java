@@ -4,6 +4,8 @@ public enum Type {
 	NUMBER,
 	BOOLEAN,
 	STRING,
+	VEICOLO,
+	SOGGETTO,
 	DATE;
 //   public static boolean numeric(Type p) {
 //      if (p == Type.Char || p == Type.Int || p == Type.Float) return true;

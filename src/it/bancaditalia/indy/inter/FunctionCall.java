@@ -1,5 +1,6 @@
 package it.bancaditalia.indy.inter;
 
+import it.bancaditalia.indy.symbols.Type;
 import it.bancaditalia.indy.utils.ListUtils;
 
 import java.util.List;
@@ -9,10 +10,24 @@ public class FunctionCall extends Expression {
 	private FunctionDeclaration func;
 	private List<Expression> parameters;
 
-	public FunctionCall(FunctionDeclaration func, List<Expression> parameters) {
+	public FunctionCall(FunctionDeclaration func, List<Expression> parameters)
+			throws TypeException {
 		super();
 		this.func = func;
 		this.parameters = parameters;
+
+		if (parameters.size() != func.getParameters().size())
+			error("Errato numero di argomenti passati alla funzione "
+					+ func.getId() + ": attesi " + func.getParameters().size()
+					+ ", passati " + parameters.size());
+		for (int i = 0; i < parameters.size(); i++) {
+			System.out.println("expected parameter " + (i+1) + ": " + func.getParameters().get(i) + ", type " + func.getParameters().get(i).type);
+			System.out.println("parameter " + (i+1) + ": " + parameters.get(i) + ", type " + parameters.get(i).type);
+			if (parameters.get(i).type != func.getParameters().get(i).type)
+				error("Errato tipo dell'argomento in posizione " + (i + 1)
+						+ ": atteso " + func.getParameters().get(i).type
+						+ ", passato " + parameters.get(i).type);
+		}
 		this.type = func.type;
 	}
 
@@ -34,12 +49,12 @@ public class FunctionCall extends Expression {
 
 	@Override
 	public String javascript() {
-		return func.getId().javascript() + "("
+		return func.getId().javascript()
+				+ "("
 				+ ListUtils.car(parameters).javascript()
 				+ ListUtils.cdr(parameters).stream()
 						.map((binding) -> binding.javascript())
-						.reduce("", (acc, elem) -> acc + ", " + elem)
-				+ ")";
+						.reduce("", (acc, elem) -> acc + ", " + elem) + ")";
 	}
 
 }

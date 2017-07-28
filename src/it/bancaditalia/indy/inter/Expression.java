@@ -5,13 +5,13 @@ import it.bancaditalia.indy.symbols.Type;
 
 public abstract class Expression implements Attribute {
 	private int lexline;
+	protected Type type;
 
 	public Expression() {
 		super();
 		this.setLexline(Lexer.line);
 	}
 
-	protected Type type;
 
 	public Type getType() {
 		return type;

@@ -9,7 +9,7 @@ public class Tag {
       OR    = 271,  REAL  = 272,  TEMP  = 273,  TRUE = 274, WHILE = 275,
       PLUS = 276, TIMES = 277, COMMA = 278, IN = 279, LET = 280, ASSIGN = 281,
       NOT = 282, EQUAL = 283, SINISTRI = 284, DIVIDE = 285, COLON = 286,
-      NUMBER = 287,
+      NUMBER = 287, BOOLEAN = 288, VEICOLO = 289, SOGGETTO = 290,
       
       EOF = 299,
    
