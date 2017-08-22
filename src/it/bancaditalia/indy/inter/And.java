@@ -10,11 +10,12 @@ public class And extends BooleanExpression {
 		super();
 		this.op1 = op1;
 		this.op2 = op2;
-		
+
 		if (op1.type != Type.BOOLEAN)
 			error("Primo operando in AND non ha tipo BOOLEAN , ma " + op1.type);
 		if (op2.type != Type.BOOLEAN)
-			error("Secondo operando in AND non ha tipo BOOLEAN , ma " + op2.type);
+			error("Secondo operando in AND non ha tipo BOOLEAN , ma "
+					+ op2.type);
 		this.type = Type.BOOLEAN;
 	}
 
@@ -29,6 +30,11 @@ public class And extends BooleanExpression {
 	@Override
 	public String javascript() {
 		return "(" + op1.javascript() + " && " + op2.javascript() + ")";
+	}
+
+	@Override
+	public String sql() {
+		return "and(" + op1.sql() +"," + op2.sql() + ")";
 	}
 
 }

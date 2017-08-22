@@ -36,5 +36,10 @@ public class Identifier extends Expression {
 		return id.lexeme;
 	}
 
+	@Override
+	public String sql() {
+		return javascript();
+	}
+
 	
 }

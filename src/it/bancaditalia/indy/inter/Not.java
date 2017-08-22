@@ -29,4 +29,8 @@ public class Not extends BooleanExpression {
 		return "(!" + op1.javascript() + ")";
 	}
 
+	@Override
+	public String sql() {
+		return "not(" + op1.sql() + ")";
+	}
 }

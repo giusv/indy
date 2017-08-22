@@ -30,6 +30,7 @@ public class Lexer {
 		reserve(new Word("logico", Tag.BOOLEAN));
 		reserve(new Word("soggetto", Tag.SOGGETTO));
 		reserve(new Word("veicolo", Tag.VEICOLO));
+		reserve(new Word("sinistri", Tag.SINISTRI));
 
 		reserve(Word.True);
 		reserve(Word.False);
@@ -120,7 +121,7 @@ public class Lexer {
 			if (readch('='))
 				return Word.ne;
 			else
-				return Word.ne;
+				return Word.not;
 		case '<':
 			if (readch('='))
 				return Word.le;

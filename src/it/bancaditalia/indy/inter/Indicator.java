@@ -51,6 +51,10 @@ public class Indicator implements Attribute {
 	}
 	public void setInput(Identifier input) {
 		this.input = input;
+	}
+	@Override
+	public String sql() {
+		throw new Error("SQL non generabile per indicatore");
 	}	
 }
 	

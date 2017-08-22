@@ -30,5 +30,8 @@ public class Plus extends ArithmeticExpression {
 	public String javascript() {
 		return "(" + op1.javascript() + " + " + op2.javascript() + ")";
 	}
-
+	@Override
+	public String sql() {
+		return "(" + op1.sql() + " + " + op2.sql() + ")";
+	}
 }

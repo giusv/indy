@@ -10,7 +10,7 @@ public class Times extends ArithmeticExpression {
 		super();
 		this.op1 = op1;
 		this.op2 = op2;
-		
+
 		if (op1.type != Type.NUMBER)
 			error("Primo operando in * non ha tipo NUMBER , ma " + op1.type);
 		if (op2.type != Type.NUMBER)
@@ -31,4 +31,8 @@ public class Times extends ArithmeticExpression {
 		return "(" + op1.javascript() + " * " + op2.javascript() + ")";
 	}
 
+	@Override
+	public String sql() {
+		return "(" + op1.sql() + " * " + op2.sql() + ")";
+	}
 }

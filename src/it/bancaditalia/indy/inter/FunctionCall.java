@@ -1,6 +1,5 @@
 package it.bancaditalia.indy.inter;
 
-import it.bancaditalia.indy.symbols.Type;
 import it.bancaditalia.indy.utils.ListUtils;
 
 import java.util.List;
@@ -55,6 +54,11 @@ public class FunctionCall extends Expression {
 				+ ListUtils.cdr(parameters).stream()
 						.map((binding) -> binding.javascript())
 						.reduce("", (acc, elem) -> acc + ", " + elem) + ")";
+	}
+
+	@Override
+	public String sql() {
+		return javascript();
 	}
 
 }

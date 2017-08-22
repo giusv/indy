@@ -34,6 +34,14 @@ public class Parameter extends Expression {
 		this.id = id;
 	}
 
+	public Expression getValue() {
+		return value;
+	}
+
+	public void setValue(Expression value) {
+		this.value = value;
+	}
+
 	@Override
 	public String toString() {
 		return id.toString();
@@ -44,12 +52,9 @@ public class Parameter extends Expression {
 		return id.lexeme;
 	}
 
-	public Expression getValue() {
-		return value;
-	}
-
-	public void setValue(Expression value) {
-		this.value = value;
-	}
+	@Override
+	public String sql() {
+		throw new Error("SQL non generabile per parametro");
+	}	
 
 }

@@ -46,4 +46,9 @@ public class Let extends Expression {
 					+ ")";
 	}
 
+	@Override
+	public String sql() {
+		return javascript();
+	}
+
 }

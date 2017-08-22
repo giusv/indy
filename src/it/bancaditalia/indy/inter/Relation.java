@@ -44,8 +44,11 @@ public class Relation extends BooleanExpression {
 
 	@Override
 	public String javascript() {
-		return "(" + op1.javascript() + " " + r.toString() + " "
+		return "(" + op1.javascript() + " " + r.javascript() + " "
 				+ op2.javascript() + ")";
 	}
-
+	@Override
+	public String sql() {
+		return r.sql() +"(" + op1.sql() + ", " + op2.sql() + ")";
+	}
 }

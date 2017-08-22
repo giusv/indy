@@ -2,7 +2,6 @@ package it.bancaditalia.indy.parser;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 import it.bancaditalia.indy.lexer.*;
 import it.bancaditalia.indy.symbols.*;
@@ -18,7 +17,16 @@ public class Parser {
 
 	public Parser(Lexer lex) throws IOException {
 		this.lex = lex;
+		top = new Env(top);
 		move();
+	}
+
+	public Env getTop() {
+		return top;
+	}
+
+	public void setTop(Env top) {
+		this.top = top;
 	}
 
 	void move() throws IOException {
@@ -44,7 +52,7 @@ public class Parser {
 			Expression syn = restoEspressione(node);
 			return syn;
 		}
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression node = termine();
 			Expression syn = restoEspressione(node);
 			return syn;
@@ -54,7 +62,12 @@ public class Parser {
 			Expression syn = restoEspressione(node);
 			return syn;
 		}
-		case Tag.ID: {
+		case Tag.VEICOLO: {
+			Expression node = termine();
+			Expression syn = restoEspressione(node);
+			return syn;
+		}
+		case Tag.SINISTRI: {
 			Expression node = termine();
 			Expression syn = restoEspressione(node);
 			return syn;
@@ -66,7 +79,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for ESPRESSIONE: expecting LEFT, VEICOLO, SOGGETTO, ID, NUM, "
+					"Error in production for ESPRESSIONE: expecting LEFT, ID, SOGGETTO, VEICOLO, SINISTRI, NUM, "
 							+ "found " + look);
 		}
 		}
@@ -81,13 +94,13 @@ public class Parser {
 		case Tag.RIGHT: {
 			return expr;
 		}
-		case Tag.EOF: {
+		case Tag.ALLORA: {
 			return expr;
 		}
 		case Tag.ALTRIMENTI: {
 			return expr;
 		}
-		case Tag.ALLORA: {
+		case Tag.EOF: {
 			return expr;
 		}
 		case Tag.IN: {
@@ -116,7 +129,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for RESTO-ESPRESSIONE: expecting OR, RIGHT, EOF, ALTRIMENTI, ALLORA, IN, COMMA, AND, EQUAL, MINUS, PLUS, "
+					"Error in production for RESTO-ESPRESSIONE: expecting OR, RIGHT, ALLORA, ALTRIMENTI, EOF, IN, COMMA, AND, EQUAL, MINUS, PLUS, "
 							+ "found " + look);
 		}
 		}
@@ -129,7 +142,12 @@ public class Parser {
 			Expression syn = restoTermine(node);
 			return syn;
 		}
-		case Tag.ID: {
+		case Tag.SINISTRI: {
+			Expression node = fattore();
+			Expression syn = restoTermine(node);
+			return syn;
+		}
+		case Tag.VEICOLO: {
 			Expression node = fattore();
 			Expression syn = restoTermine(node);
 			return syn;
@@ -139,7 +157,7 @@ public class Parser {
 			Expression syn = restoTermine(node);
 			return syn;
 		}
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression node = fattore();
 			Expression syn = restoTermine(node);
 			return syn;
@@ -151,7 +169,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for TERMINE: expecting NUM, ID, SOGGETTO, VEICOLO, LEFT, "
+					"Error in production for TERMINE: expecting NUM, SINISTRI, VEICOLO, SOGGETTO, ID, LEFT, "
 							+ "found " + look);
 		}
 		}
@@ -172,13 +190,13 @@ public class Parser {
 		case Tag.IN: {
 			return expr;
 		}
-		case Tag.ALLORA: {
+		case Tag.EOF: {
 			return expr;
 		}
 		case Tag.ALTRIMENTI: {
 			return expr;
 		}
-		case Tag.EOF: {
+		case Tag.ALLORA: {
 			return expr;
 		}
 		case Tag.RIGHT: {
@@ -207,7 +225,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for RESTO-TERMINE: expecting EQUAL, AND, COMMA, IN, ALLORA, ALTRIMENTI, EOF, RIGHT, OR, PLUS, MINUS, DIVIDE, TIMES, "
+					"Error in production for RESTO-TERMINE: expecting EQUAL, AND, COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, PLUS, MINUS, DIVIDE, TIMES, "
 							+ "found " + look);
 		}
 		}
@@ -215,7 +233,7 @@ public class Parser {
 
 	public Expression fattore() throws IOException, TypeException {
 		switch (look.tag) {
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression node = chiamataId();
 			return node;
 		}
@@ -223,7 +241,11 @@ public class Parser {
 			Expression node = chiamataId();
 			return node;
 		}
-		case Tag.ID: {
+		case Tag.VEICOLO: {
+			Expression node = chiamataId();
+			return node;
+		}
+		case Tag.SINISTRI: {
 			Expression node = chiamataId();
 			return node;
 		}
@@ -240,7 +262,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for FATTORE: expecting VEICOLO, SOGGETTO, ID, NUM, LEFT, "
+					"Error in production for FATTORE: expecting ID, SOGGETTO, VEICOLO, SINISTRI, NUM, LEFT, "
 							+ "found " + look);
 		}
 		}
@@ -273,9 +295,13 @@ public class Parser {
 			Expression syn = restoChiamataId(node);
 			return syn;
 		}
+		case Tag.SINISTRI: {
+			Expression node = query();
+			return node;
+		}
 		default: {
 			throw new Error(
-					"Error in production for CHIAMATA-ID: expecting SOGGETTO, VEICOLO, ID, "
+					"Error in production for CHIAMATA-ID: expecting SOGGETTO, VEICOLO, ID, SINISTRI, "
 							+ "found " + look);
 		}
 		}
@@ -308,13 +334,13 @@ public class Parser {
 		case Tag.IN: {
 			return expr;
 		}
-		case Tag.ALLORA: {
+		case Tag.EOF: {
 			return expr;
 		}
 		case Tag.ALTRIMENTI: {
 			return expr;
 		}
-		case Tag.EOF: {
+		case Tag.ALLORA: {
 			return expr;
 		}
 		case Tag.RIGHT: {
@@ -331,7 +357,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for RESTO-CHIAMATA-ID: expecting LEFT, DIVIDE, TIMES, EQUAL, AND, COMMA, IN, ALLORA, ALTRIMENTI, EOF, RIGHT, OR, PLUS, MINUS, "
+					"Error in production for RESTO-CHIAMATA-ID: expecting LEFT, DIVIDE, TIMES, EQUAL, AND, COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, PLUS, MINUS, "
 							+ "found " + look);
 		}
 		}
@@ -370,6 +396,28 @@ public class Parser {
 		default: {
 			throw new Error("Error in production for SE: expecting SE, "
 					+ "found " + look);
+		}
+		}
+	}
+
+	public Expression query() throws IOException, TypeException {
+		switch (look.tag) {
+		case Tag.SINISTRI: {
+			match(Tag.SINISTRI);
+			match(Tag.LEFT);
+			Env saved = top;
+			top = new Env(top);
+			top.put(new Identifier(new Word("sinistro", Tag.ID)).getId().lexeme,
+					new StringConstant("sinistro"));
+			Expression node = espressioneBooleana();
+			match(Tag.RIGHT);
+			top = saved;
+			return new Query(Table.SINISTRI, node);
+		}
+		default: {
+			throw new Error(
+					"Error in production for QUERY: expecting SINISTRI, "
+							+ "found " + look);
 		}
 		}
 	}
@@ -438,7 +486,7 @@ public class Parser {
 			ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
 			return ((ArrayList<Expression>) ListUtils.cons(par, pars));
 		}
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression par = espressioneBooleana();
 			ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
 			return ((ArrayList<Expression>) ListUtils.cons(par, pars));
@@ -448,7 +496,12 @@ public class Parser {
 			ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
 			return ((ArrayList<Expression>) ListUtils.cons(par, pars));
 		}
-		case Tag.ID: {
+		case Tag.VEICOLO: {
+			Expression par = espressioneBooleana();
+			ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
+			return ((ArrayList<Expression>) ListUtils.cons(par, pars));
+		}
+		case Tag.SINISTRI: {
 			Expression par = espressioneBooleana();
 			ArrayList<Expression> pars = restoInvocazioneParametriFunzione();
 			return ((ArrayList<Expression>) ListUtils.cons(par, pars));
@@ -475,7 +528,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for INVOCAZIONE-PARAMETRI-FUNZIONE: expecting SE, TRUE, LEFT, VEICOLO, SOGGETTO, ID, NUM, FALSE, NOT, LET, "
+					"Error in production for INVOCAZIONE-PARAMETRI-FUNZIONE: expecting SE, TRUE, LEFT, ID, SOGGETTO, VEICOLO, SINISTRI, NUM, FALSE, NOT, LET, "
 							+ "found " + look);
 		}
 		}
@@ -658,7 +711,12 @@ public class Parser {
 			Expression syn = restoEspressioneBooleana(node);
 			return syn;
 		}
-		case Tag.ID: {
+		case Tag.SINISTRI: {
+			Expression node = termineBooleano();
+			Expression syn = restoEspressioneBooleana(node);
+			return syn;
+		}
+		case Tag.VEICOLO: {
 			Expression node = termineBooleano();
 			Expression syn = restoEspressioneBooleana(node);
 			return syn;
@@ -668,7 +726,7 @@ public class Parser {
 			Expression syn = restoEspressioneBooleana(node);
 			return syn;
 		}
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression node = termineBooleano();
 			Expression syn = restoEspressioneBooleana(node);
 			return syn;
@@ -693,7 +751,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for ESPRESSIONE-BOOLEANA: expecting NOT, FALSE, NUM, ID, SOGGETTO, VEICOLO, LEFT, TRUE, SE, LET, "
+					"Error in production for ESPRESSIONE-BOOLEANA: expecting NOT, FALSE, NUM, SINISTRI, VEICOLO, SOGGETTO, ID, LEFT, TRUE, SE, LET, "
 							+ "found " + look);
 		}
 		}
@@ -705,13 +763,13 @@ public class Parser {
 		case Tag.RIGHT: {
 			return expr;
 		}
-		case Tag.EOF: {
+		case Tag.ALLORA: {
 			return expr;
 		}
 		case Tag.ALTRIMENTI: {
 			return expr;
 		}
-		case Tag.ALLORA: {
+		case Tag.EOF: {
 			return expr;
 		}
 		case Tag.IN: {
@@ -728,7 +786,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for RESTO-ESPRESSIONE-BOOLEANA: expecting RIGHT, EOF, ALTRIMENTI, ALLORA, IN, COMMA, OR, "
+					"Error in production for RESTO-ESPRESSIONE-BOOLEANA: expecting RIGHT, ALLORA, ALTRIMENTI, EOF, IN, COMMA, OR, "
 							+ "found " + look);
 		}
 		}
@@ -746,7 +804,7 @@ public class Parser {
 			Expression syn = restoTermineBooleano(node);
 			return syn;
 		}
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression node = fattoreBooleano();
 			Expression syn = restoTermineBooleano(node);
 			return syn;
@@ -756,7 +814,12 @@ public class Parser {
 			Expression syn = restoTermineBooleano(node);
 			return syn;
 		}
-		case Tag.ID: {
+		case Tag.VEICOLO: {
+			Expression node = fattoreBooleano();
+			Expression syn = restoTermineBooleano(node);
+			return syn;
+		}
+		case Tag.SINISTRI: {
 			Expression node = fattoreBooleano();
 			Expression syn = restoTermineBooleano(node);
 			return syn;
@@ -778,7 +841,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for TERMINE-BOOLEANO: expecting TRUE, LEFT, VEICOLO, SOGGETTO, ID, NUM, FALSE, NOT, "
+					"Error in production for TERMINE-BOOLEANO: expecting TRUE, LEFT, ID, SOGGETTO, VEICOLO, SINISTRI, NUM, FALSE, NOT, "
 							+ "found " + look);
 		}
 		}
@@ -793,13 +856,13 @@ public class Parser {
 		case Tag.IN: {
 			return expr;
 		}
-		case Tag.ALLORA: {
+		case Tag.EOF: {
 			return expr;
 		}
 		case Tag.ALTRIMENTI: {
 			return expr;
 		}
-		case Tag.EOF: {
+		case Tag.ALLORA: {
 			return expr;
 		}
 		case Tag.RIGHT: {
@@ -816,7 +879,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for RESTO-TERMINE-BOOLEANO: expecting COMMA, IN, ALLORA, ALTRIMENTI, EOF, RIGHT, OR, AND, "
+					"Error in production for RESTO-TERMINE-BOOLEANO: expecting COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, AND, "
 							+ "found " + look);
 		}
 		}
@@ -828,7 +891,7 @@ public class Parser {
 			Expression node = relazione();
 			return node;
 		}
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression node = relazione();
 			return node;
 		}
@@ -836,7 +899,11 @@ public class Parser {
 			Expression node = relazione();
 			return node;
 		}
-		case Tag.ID: {
+		case Tag.VEICOLO: {
+			Expression node = relazione();
+			return node;
+		}
+		case Tag.SINISTRI: {
 			Expression node = relazione();
 			return node;
 		}
@@ -859,7 +926,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for FATTORE-BOOLEANO: expecting LEFT, VEICOLO, SOGGETTO, ID, NUM, FALSE, TRUE, NOT, "
+					"Error in production for FATTORE-BOOLEANO: expecting LEFT, ID, SOGGETTO, VEICOLO, SINISTRI, NUM, FALSE, TRUE, NOT, "
 							+ "found " + look);
 		}
 		}
@@ -872,7 +939,12 @@ public class Parser {
 			Expression syn = restoRelazione(node);
 			return syn;
 		}
-		case Tag.ID: {
+		case Tag.SINISTRI: {
+			Expression node = espressione();
+			Expression syn = restoRelazione(node);
+			return syn;
+		}
+		case Tag.VEICOLO: {
 			Expression node = espressione();
 			Expression syn = restoRelazione(node);
 			return syn;
@@ -882,7 +954,7 @@ public class Parser {
 			Expression syn = restoRelazione(node);
 			return syn;
 		}
-		case Tag.VEICOLO: {
+		case Tag.ID: {
 			Expression node = espressione();
 			Expression syn = restoRelazione(node);
 			return syn;
@@ -894,7 +966,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for RELAZIONE: expecting NUM, ID, SOGGETTO, VEICOLO, LEFT, "
+					"Error in production for RELAZIONE: expecting NUM, SINISTRI, VEICOLO, SOGGETTO, ID, LEFT, "
 							+ "found " + look);
 		}
 		}
@@ -917,13 +989,13 @@ public class Parser {
 		case Tag.IN: {
 			return expr;
 		}
-		case Tag.ALLORA: {
+		case Tag.EOF: {
 			return expr;
 		}
 		case Tag.ALTRIMENTI: {
 			return expr;
 		}
-		case Tag.EOF: {
+		case Tag.ALLORA: {
 			return expr;
 		}
 		case Tag.RIGHT: {
@@ -934,7 +1006,7 @@ public class Parser {
 		}
 		default: {
 			throw new Error(
-					"Error in production for RESTO-RELAZIONE: expecting EQUAL, AND, COMMA, IN, ALLORA, ALTRIMENTI, EOF, RIGHT, OR, "
+					"Error in production for RESTO-RELAZIONE: expecting EQUAL, AND, COMMA, IN, EOF, ALTRIMENTI, ALLORA, RIGHT, OR, "
 							+ "found " + look);
 		}
 		}

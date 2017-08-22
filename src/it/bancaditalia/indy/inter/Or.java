@@ -28,7 +28,10 @@ public class Or extends BooleanExpression {
 
 	@Override
 	public String javascript() {
-		return "(" + op1.javascript() + " && " + op2.javascript() + ")";
+		return "(" + op1.javascript() + " || " + op2.javascript() + ")";
 	}
-
+	@Override
+	public String sql() {
+		return "or(" + op1.sql() +"," + op2.sql() + ")";
+	}
 }

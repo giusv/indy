@@ -65,4 +65,9 @@ public class FunctionDeclaration extends Expression {
 						.reduce("", (acc, elem) -> acc + ", " + elem)
 				+ ") { return " + expr.javascript() + ";}";
 	}
+
+	@Override
+	public String sql() {
+		throw new Error("SQL non generabile per dichiarazione di funzione");
+	}
 }

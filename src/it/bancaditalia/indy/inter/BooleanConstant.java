@@ -25,4 +25,9 @@ public class BooleanConstant extends Constant {
 		return value.toString();
 	}
 
+	@Override
+	public String sql() {
+		return value.toString();
+	}
+
 }
